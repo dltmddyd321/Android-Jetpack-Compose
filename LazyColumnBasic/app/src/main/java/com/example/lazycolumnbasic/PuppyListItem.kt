@@ -56,7 +56,7 @@ private fun PuppyImageWithCoil(puppy: Puppy) {
     contentScale = ContentScale.Crop,
     modifier = Modifier
         .padding(8.dp)
-        .size(84.dp)
+        .size(42.dp)
         .clip(RoundedCornerShape(corner = CornerSize(16.dp))))
 }
 
