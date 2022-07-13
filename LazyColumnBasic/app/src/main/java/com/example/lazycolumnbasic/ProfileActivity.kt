@@ -8,12 +8,20 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.Text
 import com.example.lazycolumnbasic.data.Puppy
+import com.example.lazycolumnbasic.ui.theme.LazyColumnBasicTheme
 
 class ProfileActivity : ComponentActivity() {
+
+    private val puppy: Puppy by lazy {
+        intent?.getSerializableExtra(PUPPY_ID) as Puppy
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Text(text = "Hello Puppy!!")
+            LazyColumnBasicTheme {
+                ProfileView(puppy = puppy)
+            }
         }
     }
 

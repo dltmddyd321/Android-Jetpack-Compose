@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             LazyColumnBasicTheme {
                 MyApp {
-                    startActivity(Intent(this, ProfileActivity::class.java))
+                    startActivity(ProfileActivity.newIntent(this, it))
                 }
             }
         }
