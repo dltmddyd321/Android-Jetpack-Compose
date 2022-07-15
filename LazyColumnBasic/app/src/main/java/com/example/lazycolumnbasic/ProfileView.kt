@@ -1,27 +1,27 @@
 package com.example.lazycolumnbasic
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Divider
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.lazycolumnbasic.data.Puppy
 
 @Composable
-fun ProfileView(puppy: Puppy) {
+fun ProfileView(puppy: Puppy, onClicked : () -> Unit) {
     val scrollState = rememberScrollState()
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -32,7 +32,9 @@ fun ProfileView(puppy: Puppy) {
                     .verticalScroll(scrollState)
                 ) {
                     ProfileHeader(puppy = puppy, containerHeight = this@BoxWithConstraints.maxHeight)
-                    ProfileContent(puppy = puppy, containerHeight = this@BoxWithConstraints.maxHeight)
+                    ProfileContent(puppy = puppy, containerHeight = this@BoxWithConstraints.maxHeight) {
+                        onClicked.invoke()
+                    }
                 }
             }
         }
@@ -53,14 +55,24 @@ private fun ProfileHeader(
 }
 
 @Composable
-private fun ProfileContent(puppy: Puppy, containerHeight: Dp) {
+private fun ProfileContent(puppy: Puppy, containerHeight: Dp, onClicked : () -> Unit) {
     Column {
         Title(puppy = puppy)
         ProfileProperty(label = stringResource(id = R.string.sex), value = puppy.sex)
         ProfileProperty(label = stringResource(id = R.string.age), value = puppy.age.toString())
         ProfileProperty(label = stringResource(id = R.string.personality), value = puppy.description)
 
+        SimpleButton { onClicked.invoke() }
+
         Spacer(modifier = Modifier.height((containerHeight - 320.dp).coerceAtLeast(0.dp)))
+    }
+}
+
+@Composable
+fun SimpleButton(onClicked : () -> Unit) {
+    Button(onClick = { onClicked.invoke() },
+    modifier = Modifier.padding(16.dp)) {
+        Text(text = "Simple Button!")
     }
 }
 

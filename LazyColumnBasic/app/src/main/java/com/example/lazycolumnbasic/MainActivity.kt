@@ -34,3 +34,9 @@ fun MyApp(navigateToProfile: (Puppy) -> Unit) {
         BarkHomeContent(navigateToProfile = navigateToProfile)
     })
 }
+
+@Preview
+@Composable
+fun PreviewMain() {
+    MyApp {}
+}
