@@ -17,10 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.composepager.MainActivity.Companion.MAX_CNT
 import com.example.composepager.ui.theme.ComposePagerTheme
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.HorizontalPagerIndicator
-import com.google.accompanist.pager.rememberPagerState
+import com.google.accompanist.pager.*
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
@@ -39,7 +36,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    MyPagerView()
+                    Column {
+                        MyPagerView()
+                        MyTabPagerView()
+                    }
                 }
             }
         }
@@ -60,7 +60,7 @@ fun MyPagerView() {
             TextButton(onClick = {
                 scope.launch {
                     if (pagerState.currentPage <= 0) return@launch
-                    pagerState.scrollToPage(pagerState.currentPage - 1)
+                    pagerState.animateScrollToPage(pagerState.currentPage - 1)
                 }
             }) {
                 Text(text = "이전 페이지")
@@ -68,7 +68,7 @@ fun MyPagerView() {
             TextButton(onClick = {
                 scope.launch {
                     if (pagerState.currentPage >= MAX_CNT) return@launch
-                    pagerState.scrollToPage(pagerState.currentPage + 1)
+                    pagerState.animateScrollToPage(pagerState.currentPage + 1)
                 }
             }) {
                 Text(text = "다음 페이지")
@@ -105,6 +105,62 @@ fun MyPagerView() {
                 .padding(16.dp),
         )
     }
+}
+
+
+@OptIn(ExperimentalPagerApi::class)
+@Composable
+fun MyTabPagerView() {
+    val tabPagerState = rememberPagerState()
+    val scope = rememberCoroutineScope()
+
+    val tabs = MyTab.values().toList()
+
+    Column() {
+        
+        TabRow(selectedTabIndex = tabPagerState.currentPage,
+        indicator = { tabPositions ->
+            TabRowDefaults.Indicator(
+                Modifier.pagerTabIndicatorOffset(tabPagerState, tabPositions)
+            )
+        }) {
+            tabs.forEachIndexed { index, tabItem ->
+                Tab(text = { Text(tabItem.title) }, selected = tabPagerState.currentPage == index, onClick = {
+                    scope.launch {
+                        tabPagerState.animateScrollToPage(index)
+                    }
+                })
+            }
+        }
+        
+        // Display 10 items
+        HorizontalPager(
+            count = tabs.size,
+            state = tabPagerState
+//            contentPadding = PaddingValues(64.dp)
+        ) { page ->
+            // Our page content
+            Card(modifier = Modifier.padding(50.dp).fillMaxSize(),
+                backgroundColor = Color.Yellow,
+                elevation = 10.dp) {
+                Text(
+                    text = tabs[page].title,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,
+                )
+                Text(
+                    text = "Page : $page",
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        }
+    }
+}
+
+
+enum class MyTab(val title: String) {
+    HOME("홈"), PROFILE("프로필"), LIST("리스트"), SETTING("설정")
 }
 
 @Composable
