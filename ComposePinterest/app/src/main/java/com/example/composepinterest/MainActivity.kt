@@ -3,22 +3,29 @@ package com.example.composepinterest
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Card
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.composepinterest.ui.theme.ComposePinterestTheme
 import kotlin.random.Random
 
 class MainActivity : ComponentActivity() {
+
+    companion object {
+        const val MIN_CNT = 2
+        const val MAX_CNT = 5
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -28,7 +35,32 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colors.background
                 ) {
-                    Greeting("Android")
+                    val columnCount = remember {
+                        mutableStateOf(2)
+                    }
+                    Column {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Button(modifier = Modifier.weight(1f),
+                                onClick = {
+                                if (columnCount.value < MIN_CNT) { return@Button }
+                                columnCount.value = columnCount.value - 1
+                            }) {
+                                Text(text = "-", fontSize = 20.sp)
+                            }
+                            Text(modifier = Modifier.weight(1f), text = "${columnCount.value}", fontSize = 20.sp)
+                            Button(modifier = Modifier.weight(1f),
+                                onClick = {
+                                if (columnCount.value > MAX_CNT - 1) { return@Button }
+                                columnCount.value = columnCount.value + 1
+                            }) {
+                                Text(text = "+", fontSize = 20.sp)
+                            }
+                        }
+                        NonLazyStaggeredVerticalGrid(columnCount)
+                    }
                 }
             }
         }
@@ -41,14 +73,21 @@ fun Greeting(name: String) {
 }
 
 @Composable
-fun NonLazyStaggeredVerticalGrid() {
+fun NonLazyStaggeredVerticalGrid(
+    columnCount: MutableState<Int>
+) {
     val randomTexts = getRandomStringList(100)
 
-    StaggeredVerticalGrid(
-        modifier = Modifier.padding(4.dp)
-    ) {
-        (randomTexts).forEach {
-            TextCard(text = it)
+    LazyColumn{
+        item {
+            StaggeredVerticalGrid(
+                modifier = Modifier.padding(4.dp),
+                columnCount = columnCount.value
+            ) {
+                (randomTexts).forEach {
+                    TextCard(text = it)
+                }
+            }
         }
     }
 }
