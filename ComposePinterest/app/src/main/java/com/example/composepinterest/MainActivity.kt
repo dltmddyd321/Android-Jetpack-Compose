@@ -3,6 +3,7 @@ package com.example.composepinterest
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
@@ -13,6 +14,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,7 +52,10 @@ class MainActivity : ComponentActivity() {
                             }) {
                                 Text(text = "-", fontSize = 20.sp)
                             }
-                            Text(modifier = Modifier.weight(1f), text = "${columnCount.value}", fontSize = 20.sp)
+                            Text(modifier = Modifier.weight(1f),
+                                text = "${columnCount.value}",
+                                fontSize = 20.sp,
+                                textAlign = TextAlign.Center)
                             Button(modifier = Modifier.weight(1f),
                                 onClick = {
                                 if (columnCount.value > MAX_CNT - 1) { return@Button }
@@ -60,6 +65,9 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                         NonLazyStaggeredVerticalGrid(columnCount)
+
+                        //메모리에서 유실되었다가 스크롤 시 다시 메모리에 데이터 올라간다.
+                        MyLazyStaggeredVerticalGrid(columnCount)
                     }
                 }
             }
@@ -87,6 +95,21 @@ fun NonLazyStaggeredVerticalGrid(
                 (randomTexts).forEach {
                     TextCard(text = it)
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun MyLazyStaggeredVerticalGrid(
+    columnCount: MutableState<Int>
+) {
+    val randomTexts = getRandomStringList(100)
+
+    LazyStaggeredGrid(columnCount = columnCount.value) {
+        (randomTexts).forEach { text ->
+            item {
+                TextCard(text = text)
             }
         }
     }
