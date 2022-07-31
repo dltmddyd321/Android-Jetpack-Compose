@@ -1,6 +1,7 @@
 package com.example.bookingdesign
 
 import android.os.Bundle
+import android.widget.Space
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -10,11 +11,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -25,6 +28,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.bookingdesign.ui.theme.BookingDesignTheme
+
+val dummyDestinations by lazy {
+    listOf(
+        Destination(R.drawable.ic_launcher_background, "Android", 4.8F),
+        Destination(R.drawable.ic_launcher_background, "Phone", 4.8F),
+        Destination(R.drawable.ic_launcher_background, "Kotlin", 4.8F),
+        Destination(R.drawable.ic_launcher_background, "JAVA", 4.8F)
+    )
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,6 +59,93 @@ fun HomeComponent() {
             TopSection()
             Spacer(modifier = Modifier.size(20.dp))
             Event()
+            Spacer(modifier = Modifier.size(20.dp))
+            EventList()
+        }
+    }
+}
+
+@Composable
+fun EventList() {
+    val textColor = Color(0xFF222222)
+
+    return Column(
+        Modifier
+            .fillMaxWidth()
+            .padding(top = 20.dp)
+    ) {
+        Row(
+            Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Best Destination",
+                color = textColor,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 26.sp
+            )
+            Text(
+                text = "SEE ALL",
+                color = Color(0xFF77797A),
+                fontWeight = FontWeight.Medium
+            )
+        }
+        StaggeredVerticalGrid(
+            maxColumnWidth = 220.dp,
+            modifier = Modifier.padding(4.dp)
+        ) {
+            dummyDestinations.forEach { destination ->
+                DestinationCard(destination)
+            }
+        }
+    }
+}
+
+@Composable
+fun DestinationCard(destination: Destination) {
+    Box(
+        modifier = Modifier
+            .padding(4.dp)
+            .fillMaxWidth(),
+        contentAlignment = Alignment.BottomStart
+    ) {
+        Image(
+            painter = painterResource(id = destination.destinationImage),
+            contentDescription = destination.destinationName,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp)),
+            contentScale = ContentScale.Crop
+        )
+        Column(
+            modifier = Modifier.padding(8.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = destination.destinationName,
+                color = Color.White,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Row(
+                modifier = Modifier
+                    .background(
+                        Color.White.copy(alpha = 0.2f),
+                        shape = RoundedCornerShape(4.dp)
+                    )
+                    .padding(horizontal = 8.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = destination.destinationRating.toString(), color = Color.White)
+                Icon(
+                    imageVector = Icons.Default.Star,
+                    contentDescription = "Star",
+                    tint = Color.White,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+            Text(text = destination.destinationRating.toString())
         }
     }
 }
