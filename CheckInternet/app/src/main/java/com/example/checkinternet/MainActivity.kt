@@ -14,7 +14,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.lifecycleScope
 import com.example.checkinternet.ui.theme.CheckInternetTheme
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 
 class MainActivity : ComponentActivity() {
 
@@ -23,6 +26,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         connectivityObserver = NetworkConnectivityObserver(applicationContext)
+
+        connectivityObserver.observe().onEach {
+            println("Status is $it")
+        }.launchIn(lifecycleScope)
+
         setContent {
             CheckInternetTheme {
                 val status by connectivityObserver.observe().collectAsState(
