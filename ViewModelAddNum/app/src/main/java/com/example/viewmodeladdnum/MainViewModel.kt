@@ -1,19 +1,21 @@
 package com.example.viewmodeladdnum
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 class MainViewModel(startingTotal: Int): ViewModel() {
-    private var total = 0
+    //관찰 및 변경 가능한 LiveData 형식
+    private var total = MutableLiveData<Int>()
+    //public 형태가 아닌 LiveData 객체 형식으로 외부에서 접근할 것
+    val totalData: LiveData<Int>
+        get() = total
 
     init {
-        total = startingTotal
-    }
-
-    fun getTotal(): Int {
-        return total
+        total.value = startingTotal
     }
 
     fun setTotal(input: Int) {
-        total += input
+        total.value = (total.value)?.plus(input)
     }
 }
