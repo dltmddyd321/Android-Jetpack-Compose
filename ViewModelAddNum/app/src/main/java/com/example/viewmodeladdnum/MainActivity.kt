@@ -10,10 +10,13 @@ import com.example.viewmodeladdnum.databinding.ActivityMainBinding
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: MainViewModel
+    private lateinit var viewModelFactory: MainViewModelFactory
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
+        //뷰모델 초기화 공장 -> 시작 인자 값을 넘기고 뷰모델 객체 생성을 돕는다.
+        viewModelFactory = MainViewModelFactory(100)
+        viewModel = ViewModelProvider(this, viewModelFactory)[MainViewModel::class.java]
         binding.resultText.text= viewModel.getTotal().toString()
         binding.btn.setOnClickListener {
             if(!isNumber(binding.editText.text.toString())) {

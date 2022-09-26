@@ -2,8 +2,12 @@ package com.example.viewmodeladdnum
 
 import androidx.lifecycle.ViewModel
 
-class MainViewModel: ViewModel() {
+class MainViewModel(startingTotal: Int): ViewModel() {
     private var total = 0
+
+    init {
+        total = startingTotal
+    }
 
     fun getTotal(): Int {
         return total
