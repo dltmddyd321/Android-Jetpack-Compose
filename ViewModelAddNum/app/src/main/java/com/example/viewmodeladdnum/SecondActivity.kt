@@ -16,12 +16,13 @@ class SecondActivity : AppCompatActivity() {
         viewModelFactory = SecondViewModelFactory(-1)
         viewModel = ViewModelProvider(this, viewModelFactory)[SecondViewModel::class.java]
 
-        viewModel.cntData.observe(this) {
-            binding.textView.text = it.toString()
-        }
+        //바인딩을 위해 뷰 모델 객체에 실제 라이프사이클 소유자를 제공해야한다.
+        binding.lifecycleOwner = this
 
-        binding.button.setOnClickListener {
-            viewModel.updateCnt()
-        }
+        binding.secondViewModel = viewModel
+
+//        viewModel.cntData.observe(this) {
+//            binding.textView.text = it.toString()
+//        }
     }
 }
