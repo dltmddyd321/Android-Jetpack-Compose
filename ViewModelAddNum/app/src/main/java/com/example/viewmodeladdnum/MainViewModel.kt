@@ -11,11 +11,19 @@ class MainViewModel(startingTotal: Int): ViewModel() {
     val totalData: LiveData<Int>
         get() = total
 
+    //업데이트할 값을 입력받기 위한 MutableLiveData
+    val inputText = MutableLiveData<String>()
+
     init {
         total.value = startingTotal
     }
 
-    fun setTotal(input: Int) {
-        total.value = (total.value)?.plus(input)
+//    fun setTotal(input: Int) {
+//        total.value = (total.value)?.plus(input)
+//    }
+
+    fun setTotal() {
+        val inputNum: Int = inputText.value?.toInt() ?: 0
+        total.value = (total.value)?.plus(inputNum)
     }
 }

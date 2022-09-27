@@ -31,30 +31,12 @@ class MainActivity : AppCompatActivity() {
         viewModelFactory = MainViewModelFactory(100)
         viewModel = ViewModelProvider(this, viewModelFactory)[MainViewModel::class.java]
 
-        //LiveData Observing을 통해 값을 변경한다.
-        viewModel.totalData.observe(this) {
-            binding.resultText.text = it.toString()
-        }
-
-        binding.btn.setOnClickListener {
-            if(!isNumber(binding.editText.text.toString())) {
-                Log.d("TEST", "숫자 형식이 아닙니다.")
-                return@setOnClickListener
+        binding.apply {
+            mainViewModel = viewModel
+            lifecycleOwner = this@MainActivity
+            nextBtn.setOnClickListener {
+                startActivity(Intent(this@MainActivity, SecondActivity::class.java))
             }
-
-            viewModel.setTotal(binding.editText.text.toString().toInt())
-        }
-
-        binding.nextBtn.setOnClickListener {
-            startActivity(Intent(this, SecondActivity::class.java))
-        }
-    }
-
-    private fun isNumber(s: String): Boolean {
-        return when(s.toIntOrNull())
-        {
-            null -> false
-            else -> true
         }
     }
 }

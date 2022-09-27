@@ -1,5 +1,6 @@
 package com.example.viewmodeladdnum
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.databinding.DataBindingUtil
@@ -24,5 +25,9 @@ class SecondActivity : AppCompatActivity() {
 //        viewModel.cntData.observe(this) {
 //            binding.textView.text = it.toString()
 //        }
+
+        binding.secondBtn.setOnClickListener {
+            startActivity(Intent(this, ThirdActivity::class.java))
+        }
     }
 }
