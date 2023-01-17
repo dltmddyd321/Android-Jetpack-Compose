@@ -1,0 +1,318 @@
+{
+  "name": "action_button",
+  "version": 32,
+  "source-key": {
+    "type": "figma",
+    "file": "63GtiQm4ESwq3QoWAETwl9",
+    "node": "2:22",
+    "version": "2873760822",
+    "component-id": "be038d16f58e4263f6ae7f532302a97107a80318"
+  },
+  "default": "Primary",
+  "design": {
+    "atoms": [
+      {
+        "type": "group",
+        "id": "top_level",
+        "root": "true"
+      },
+      {
+        "type": "group",
+        "id": "check"
+      },
+      {
+        "type": "text",
+        "id": "text"
+      },
+      {
+        "type": "vector",
+        "id": "ButtonBackground"
+      }
+    ],
+    "modes": {
+      "Primary": {
+        "rules": [
+          {
+            "id": "top_level",
+            "padding": {
+              "left": "75.0",
+              "top": "11.0",
+              "right": "75.0",
+              "bottom": "11.0"
+            },
+            "border-radius": "32.0",
+            "drop-shadow": {
+              "color": {
+                "alpha": "0.24705882352941178",
+                "hue": "0.0",
+                "saturation": "0.0",
+                "value": "0.0"
+              },
+              "blur": "4.0",
+              "offset-x": "0.0",
+              "offset-y": "4.0",
+              "spread": "0.0",
+              "blend-mode": "normal"
+            },
+            "tap-handler": "$onClick",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "shrink"
+              },
+              "height-constraints": {
+                "sizing-mode": "shrink"
+              }
+            },
+            "arrangement": "row",
+            "main-axis-align": "start",
+            "cross-axis-align": "start",
+            "children": [
+              "check",
+              "text"
+            ],
+            "item-spacing": "14.0",
+            "background-color": {
+              "alpha": "1.0",
+              "hue": "180.0",
+              "saturation": "0.3803921568627451",
+              "value": "1.0"
+            },
+            "clip-content": "false"
+          },
+          {
+            "id": "check",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "fixed",
+                "value": "24.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "fixed",
+                "value": "24.0"
+              }
+            },
+            "is-structured": "false",
+            "children": "$icon",
+            "clip-content": "false"
+          },
+          {
+            "id": "text",
+            "font-weight": "600.0",
+            "color": {
+              "alpha": "1.0",
+              "hue": "21.411764705882355",
+              "saturation": "1.0",
+              "value": "1.0"
+            },
+            "text-content": "$text",
+            "overflow": "visible",
+            "text-align": "left",
+            "text-size": "16.0",
+            "line-height": "1.2569999694824219",
+            "typeface": "Source Code Pro"
+          }
+        ]
+      },
+      "Secondary": {
+        "rules": [
+          {
+            "id": "top_level",
+            "tap-handler": "$onClick",
+            "stroke-alignment": "outside",
+            "is-structured": "false",
+            "children": [
+              "ButtonBackground",
+              "text",
+              "check"
+            ],
+            "clip-content": "false"
+          },
+          {
+            "id": "ButtonBackground",
+            "border-radius": "32.0",
+            "drop-shadow": {
+              "color": {
+                "alpha": "0.24705882352941178",
+                "hue": "0.0",
+                "saturation": "0.0",
+                "value": "0.0"
+              },
+              "blur": "4.0",
+              "offset-x": "0.0",
+              "offset-y": "4.0",
+              "spread": "0.0",
+              "blend-mode": "normal"
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              }
+            },
+            "vector-content": "button_background.svg"
+          },
+          {
+            "id": "text",
+            "margin": {
+              "left": "107.0",
+              "top": "23.0",
+              "right": "108.0",
+              "bottom": "24.0"
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              },
+              "height-constraints": {
+                "sizing-mode": "proportional",
+                "value": "1.0"
+              }
+            },
+            "font-weight": "600.0",
+            "color": {
+              "alpha": "1.0",
+              "hue": "21.411764705882355",
+              "saturation": "1.0",
+              "value": "1.0"
+            },
+            "text-content": "$text",
+            "overflow": "visible",
+            "text-align": "left",
+            "text-size": "16.0",
+            "line-height": "1.2569999694824219",
+            "typeface": "Source Code Pro"
+          },
+          {
+            "id": "check",
+            "margin": {
+              "left": "45.0",
+              "top": "23.0",
+              "right": "271.0",
+              "bottom": "20.0"
+            },
+            "is-structured": "false",
+            "children": "$icon",
+            "clip-content": "false"
+          }
+        ]
+      }
+    }
+  },
+  "parameters": {
+    "onClick": {
+      "data-type": "void-callback",
+      "required": false,
+      "description": ""
+    },
+    "icon": {
+      "data-type": "list-item",
+      "required": false,
+      "description": ""
+    },
+    "text": {
+      "data-type": "text",
+      "required": false,
+      "description": ""
+    }
+  },
+  "previews": [
+    {
+      "design": "Primary",
+      "size": {
+        "width": 313.0,
+        "height": 46.0
+      },
+      "parameters": {
+        "icon": [
+          {
+            "type": "vector",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": 1.0
+              },
+              "height-constraints": {
+                "sizing-mode": "proportional",
+                "value": 1.0
+              }
+            }
+          },
+          {
+            "type": "vector",
+            "margin": {
+              "left": "3.8499984741210938",
+              "top": "5.975006103515625",
+              "right": "3.850006103515625",
+              "bottom": "6.0"
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": 1.0
+              },
+              "height-constraints": {
+                "sizing-mode": "proportional",
+                "value": 1.0
+              }
+            },
+            "vector-content": "check.svg"
+          }
+        ],
+        "text": "Hello, World!"
+      }
+    },
+    {
+      "design": "Secondary",
+      "size": {
+        "width": 340.0,
+        "height": 67.0
+      },
+      "parameters": {
+        "icon": [
+          {
+            "type": "vector",
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": 1.0
+              },
+              "height-constraints": {
+                "sizing-mode": "proportional",
+                "value": 1.0
+              }
+            }
+          },
+          {
+            "type": "vector",
+            "margin": {
+              "left": "3.8499984741210938",
+              "top": "5.975006103515625",
+              "right": "3.850006103515625",
+              "bottom": "6.0"
+            },
+            "size-constraints": {
+              "width-constraints": {
+                "sizing-mode": "proportional",
+                "value": 1.0
+              },
+              "height-constraints": {
+                "sizing-mode": "proportional",
+                "value": 1.0
+              }
+            },
+            "vector-content": "check1.svg"
+          }
+        ],
+        "text": "Hello, World!"
+      }
+    }
+  ],
+  "adin-component-search-paths": [],
+  "image-search-paths": [],
+  "vector-search-paths": []
+}
