@@ -4,12 +4,13 @@ package com.example.composeunderstand
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -17,11 +18,9 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.*
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CardElevation
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,9 +29,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.composeunderstand.MainActivity.Companion.TAG
 import com.example.composeunderstand.ui.theme.ActionBtnBgColor
 import com.example.composeunderstand.ui.theme.ComposeUnderstandTheme
+import com.example.composeunderstand.ui.theme.Purple200
+import com.example.composeunderstand.ui.theme.Purple500
 
 class MainActivity : ComponentActivity() {
 
@@ -69,6 +69,20 @@ fun Calculator() {
         1, 2, 3, CalAction.Plus, 0
     )
 
+    //첫 번째 입력
+    var firstInput by remember { mutableStateOf("") }
+
+    //두 번째 입력
+    var secondInput by remember { mutableStateOf("") }
+
+    //현재 활성화된 Action
+    val selectedAction: MutableState<CalAction?> = remember {
+        mutableStateOf(null)
+    }
+
+    //현재 선택된 Symbol
+    val selectedSymbol: String = selectedAction.value?.symbol ?: ""
+
     LazyVerticalGrid(
 //        columns = GridCells.Adaptive(120.dp), // 120dp에 맞추어 채우겠다.
         columns = GridCells.Fixed(4), //4칸으로 나누어 맞추겠다.
@@ -77,9 +91,25 @@ fun Calculator() {
         content = {//넣을 아이템에 대해 명시
 
             item(span = {
+                GridItemSpan(maxLineSpan)
+            }) {
+                NumberText(
+                    firstInput,
+                    secondInput,
+                    selectedSymbol,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+
+            item(span = {
                 GridItemSpan(2)
             }) {
-                ActionButton(action = CalAction.AllClear)
+                ActionButton(action = CalAction.AllClear,
+                    onClicked = {
+                        firstInput = ""
+                        secondInput = ""
+                        selectedAction.value = null
+                    })
             }
 
             item(span = {
@@ -90,8 +120,12 @@ fun Calculator() {
 
             items(buttons) { btn ->
                 when (btn) {
-                    is CalAction -> ActionButton(btn)
-                    is Int -> NumberButton(num = btn)
+                    is CalAction -> ActionButton(btn, selectedAction.value, onClicked = {
+                        selectedAction.value = btn
+                    })
+                    is Int -> NumberButton(num = btn) {
+                        firstInput += btn
+                    }
                 }
             }
 
@@ -104,14 +138,67 @@ fun Calculator() {
 }
 
 @Composable
-fun ActionButton(action: CalAction) {
+fun NumberText(
+    firstInput: String,
+    secondInput: String,
+    selectedSymbol: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+    ) {
+        Text(
+            text = firstInput,
+            modifier = Modifier
+                .background(Color.Yellow),
+            fontSize = 50.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            lineHeight = 50.sp,
+            maxLines = 1,
+            color = Color.Black
+        )
+        Text(
+            text = selectedSymbol,
+            modifier = Modifier
+                .background(Color.Yellow),
+            fontSize = 50.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            lineHeight = 50.sp,
+            maxLines = 1,
+            color = Purple200
+        )
+        Text(
+            text = secondInput,
+            modifier = Modifier
+                .background(Color.Yellow),
+            fontSize = 50.sp,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            lineHeight = 50.sp,
+            maxLines = 1,
+            color = Color.Black
+        )
+    }
+}
+
+@Composable
+fun ActionButton(
+    action: CalAction,
+    selectedAction: CalAction? = null,
+    onClicked: (() -> Unit)? = null
+) {
     androidx.compose.material3.Card(
         onClick = {
-            Log.d(TAG, "Card가 클릭!!")
+            onClicked?.invoke()
         },
         elevation = CardDefaults.cardElevation(8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = ActionBtnBgColor
+            containerColor = if (selectedAction == action) Purple500 else ActionBtnBgColor,
+            contentColor = if (selectedAction == action) Color.White else Color.Black
         )
     ) {
         Text(
@@ -127,10 +214,10 @@ fun ActionButton(action: CalAction) {
 }
 
 @Composable
-fun NumberButton(num: Int) {
+fun NumberButton(num: Int, onClicked: (() -> Unit)? = null) {
     androidx.compose.material3.Card(
         onClick = {
-            Log.d(TAG, "Card가 클릭!!")
+            onClicked?.invoke()
         },
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
