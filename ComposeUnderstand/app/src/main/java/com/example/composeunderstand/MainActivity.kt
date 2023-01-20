@@ -118,13 +118,18 @@ fun Calculator() {
                 ActionButton(action = CalAction.Delete)
             }
 
+            //숫자와 계산 기호 처리
             items(buttons) { btn ->
                 when (btn) {
                     is CalAction -> ActionButton(btn, selectedAction.value, onClicked = {
                         selectedAction.value = btn
                     })
                     is Int -> NumberButton(num = btn) {
-                        firstInput += btn
+                        if (selectedAction.value == null) {
+                            firstInput += btn
+                        } else {
+                            secondInput += btn
+                        }
                     }
                 }
             }
@@ -191,14 +196,17 @@ fun ActionButton(
     selectedAction: CalAction? = null,
     onClicked: (() -> Unit)? = null
 ) {
+
+    val isSelected = selectedAction == action
+
     androidx.compose.material3.Card(
         onClick = {
             onClicked?.invoke()
         },
         elevation = CardDefaults.cardElevation(8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (selectedAction == action) Purple500 else ActionBtnBgColor,
-            contentColor = if (selectedAction == action) Color.White else Color.Black
+            containerColor = if (isSelected) Purple500 else ActionBtnBgColor,
+            contentColor = if (isSelected) Color.White else Color.Black
         )
     ) {
         Text(
