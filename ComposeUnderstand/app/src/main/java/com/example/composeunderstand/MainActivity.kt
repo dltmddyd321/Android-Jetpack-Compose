@@ -4,6 +4,7 @@ package com.example.composeunderstand
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -70,7 +71,7 @@ fun Calculator() {
     )
 
     //첫 번째 입력
-    var firstInput by remember { mutableStateOf("") }
+    var firstInput by remember { mutableStateOf("0") }
 
     //두 번째 입력
     var secondInput by remember { mutableStateOf("") }
@@ -106,7 +107,7 @@ fun Calculator() {
             }) {
                 ActionButton(action = CalAction.AllClear,
                     onClicked = {
-                        firstInput = ""
+                        firstInput = "0"
                         secondInput = ""
                         selectedAction.value = null
                     })
@@ -115,7 +116,20 @@ fun Calculator() {
             item(span = {
                 GridItemSpan(1)
             }) {
-                ActionButton(action = CalAction.Delete)
+                ActionButton(action = CalAction.Delete, onClicked = {
+
+                    if (secondInput.isNotEmpty()) {
+                        secondInput += secondInput.dropLast(1)
+                        return@ActionButton
+                    }
+
+                    if (selectedAction.value != null) {
+                        selectedAction.value = null
+                        return@ActionButton
+                    }
+                    //마지막 글자 1개 지우기
+                    firstInput = if (firstInput.length == 1) "0" else firstInput.dropLast(1)
+                })
             }
 
             //숫자와 계산 기호 처리
@@ -126,7 +140,8 @@ fun Calculator() {
                     })
                     is Int -> NumberButton(num = btn) {
                         if (selectedAction.value == null) {
-                            firstInput += btn
+                            if (firstInput == "0") firstInput =
+                                btn.toString() else firstInput += btn
                         } else {
                             secondInput += btn
                         }
@@ -137,9 +152,31 @@ fun Calculator() {
             item(span = {
                 GridItemSpan(maxCurrentLineSpan) //여유 공간만큼 다 채운다.
             }) {
-                ActionButton(action = CalAction.Calculate)
+                ActionButton(action = CalAction.Calculate, onClicked = {
+                    val result = selectedAction.value?.let {
+                        startCalculate(firstInput.toFloat(), secondInput.toFloat(), it)
+                    } ?: Log.d("CAL", "선택된 연산이 없습니다.")
+                    firstInput = result.toString()
+                    secondInput = ""
+                    selectedAction.value = null
+                })
             }
         })
+}
+
+//계산 처리
+fun startCalculate(
+    firstNum: Float,
+    secondNum: Float,
+    action: CalAction
+): Float? {
+    return when (action) {
+        CalAction.Plus -> firstNum + secondNum
+        CalAction.Minus -> firstNum - secondNum
+        CalAction.Multiply -> firstNum * secondNum
+        CalAction.Divide -> firstNum / secondNum
+        else -> null
+    }
 }
 
 @Composable
