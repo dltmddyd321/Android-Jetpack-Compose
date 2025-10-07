@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">ResourceRenderTest</string>
+    <string name="title_activity_glide_grid">GlideGridActivity</string>
+</resources>
