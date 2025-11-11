@@ -1,13 +1,17 @@
 package com.windrr.couplewidgetapp
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -36,8 +40,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.ContextCompat
 import com.windrr.couplewidgetapp.ui.theme.CoupleWidgetAppTheme
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -48,9 +54,20 @@ import java.util.Date
 import java.util.Locale
 
 class MainActivity : ComponentActivity() {
+
+    private lateinit var notificationPermissionLauncher: ActivityResultLauncher<String>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        notificationPermissionLauncher =
+            registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+                if (isGranted) {
+                    showDDayNotification()
+                }
+            }
+
         setContent {
             CoupleWidgetAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -60,31 +77,52 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        showDDayNotification()
+        checkAndRequestNotificationPermission()
+    }
+
+    private fun checkAndRequestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            } else {
+                showDDayNotification()
+            }
+        } else {
+            showDDayNotification()
+        }
     }
 
     private fun showDDayNotification() {
-        val channelId = "dday_channel"
-        val notificationId = 1
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                channelId,
-                "D-Day 알림",
-                NotificationManager.IMPORTANCE_HIGH
-            )
-            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            manager.createNotificationChannel(channel)
-        }
-        val builder = NotificationCompat.Builder(this, channelId)
-            .setSmallIcon(android.R.drawable.star_on)
-            .setContentTitle("❤ D+123")
-            .setContentText("오늘은 우리 123일째! 💕")
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setOngoing(true) // 고정 알림
-            .setOnlyAlertOnce(true)
-        with(NotificationManagerCompat.from(this)) {
-            notify(notificationId, builder.build())
-        }
+//        val channelId = "dday_channel"
+//        val notificationId = 1
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            val channel = NotificationChannel(
+//                channelId,
+//                "D-Day 알림",
+//                NotificationManager.IMPORTANCE_HIGH
+//            )
+//            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+//            manager.createNotificationChannel(channel)
+//        }
+//        val builder = NotificationCompat.Builder(this, channelId)
+//            .setSmallIcon(android.R.drawable.star_on)
+//            .setContentTitle("❤ D+123")
+//            .setPriority(NotificationCompat.PRIORITY_HIGH)
+//            .setOngoing(true) // 고정 알림
+//            .setOnlyAlertOnce(true)
+//            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+//        with(NotificationManagerCompat.from(this)) {
+//            if (ActivityCompat.checkSelfPermission(
+//                    this@MainActivity,
+//                    Manifest.permission.POST_NOTIFICATIONS
+//                ) != PackageManager.PERMISSION_GRANTED
+//            ) return
+//            notify(notificationId, builder.build())
+//        }
     }
 }
 
