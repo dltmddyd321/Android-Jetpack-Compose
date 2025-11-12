@@ -1,17 +1,14 @@
 package com.windrr.couplewidgetapp
 
-import android.Manifest
-import android.app.NotificationChannel
-import android.app.NotificationManager
+import android.app.AlarmManager
 import android.content.Context
-import android.content.pm.PackageManager
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -23,27 +20,30 @@ import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.windrr.couplewidgetapp.ui.theme.CoupleWidgetAppTheme
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -55,78 +55,24 @@ import java.util.Locale
 
 class MainActivity : ComponentActivity() {
 
-    private lateinit var notificationPermissionLauncher: ActivityResultLauncher<String>
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-
-        notificationPermissionLauncher =
-            registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-                if (isGranted) {
-                    showDDayNotification()
-                }
-            }
-
         setContent {
             CoupleWidgetAppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     DDaySettingsScreen(
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .fillMaxSize()
                     )
                 }
             }
         }
-        checkAndRequestNotificationPermission()
-    }
-
-    private fun checkAndRequestNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            } else {
-                showDDayNotification()
-            }
-        } else {
-            showDDayNotification()
-        }
-    }
-
-    private fun showDDayNotification() {
-//        val channelId = "dday_channel"
-//        val notificationId = 1
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            val channel = NotificationChannel(
-//                channelId,
-//                "D-Day 알림",
-//                NotificationManager.IMPORTANCE_HIGH
-//            )
-//            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-//            manager.createNotificationChannel(channel)
-//        }
-//        val builder = NotificationCompat.Builder(this, channelId)
-//            .setSmallIcon(android.R.drawable.star_on)
-//            .setContentTitle("❤ D+123")
-//            .setPriority(NotificationCompat.PRIORITY_HIGH)
-//            .setOngoing(true) // 고정 알림
-//            .setOnlyAlertOnce(true)
-//            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-//        with(NotificationManagerCompat.from(this)) {
-//            if (ActivityCompat.checkSelfPermission(
-//                    this@MainActivity,
-//                    Manifest.permission.POST_NOTIFICATIONS
-//                ) != PackageManager.PERMISSION_GRANTED
-//            ) return
-//            notify(notificationId, builder.build())
-//        }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DDaySettingsScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
@@ -170,6 +116,8 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
             Text("시작 날짜 변경하기")
         }
 
+        Spacer(modifier = Modifier.height(16.dp))
+
         Button(onClick = {
             coroutineScope.launch {
                 val selectedDate = datePickerState.selectedDateMillis ?: System.currentTimeMillis()
@@ -179,6 +127,10 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
         }) {
             Text("저장하기")
         }
+
+        Spacer(modifier = Modifier.height(24.dp))
+        HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+        ExactAlarmPermissionCheck(modifier = Modifier.padding(horizontal = 16.dp))
     }
 
     if (showDatePicker) {
@@ -188,6 +140,9 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                 TextButton(
                     onClick = {
                         showDatePicker = false
+                        // TODO: "확인" 버튼을 눌렀을 때만 datePickerState의 날짜를
+                        // savedDateMillis에 반영할지, 아니면 즉시 반영할지 결정 필요.
+                        // 현재는 "저장하기" 버튼을 눌러야만 반영됨.
                     }
                 ) {
                     Text("확인")
@@ -205,6 +160,60 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
         }
     }
 }
+
+/**
+ * '정확한 알람'(SCHEDULE_EXACT_ALARM) 권한을 확인하고
+ * 설정으로 이동하는 버튼을 제공하는 Composable
+ */
+@Composable
+fun ExactAlarmPermissionCheck(modifier: Modifier = Modifier) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return
+
+    val context = LocalContext.current
+    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var hasPermission by rememberSaveable { mutableStateOf(alarmManager.canScheduleExactAlarms()) }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                hasPermission = alarmManager.canScheduleExactAlarms()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    if (!hasPermission) {
+        Column(
+            modifier = modifier,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "위젯이 자정에 자동으로 갱신되려면 '알람 및 리마인더' 권한이 필요합니다.",
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Button(onClick = {
+                Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).also {
+                    context.startActivity(it)
+                }
+            }) {
+                Text("권한 설정하러 가기")
+            }
+        }
+    } else {
+        Text(
+            text = "자정 자동 갱신이 활성화되었습니다.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.primary // 긍정적 피드백
+        )
+    }
+}
+
 
 /**
  * Milliseconds (Long) 값을 "yyyy년 MM월 dd일" 형태의 문자열로 변환합니다.
