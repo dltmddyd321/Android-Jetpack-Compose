@@ -28,6 +28,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -83,9 +84,19 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
     var showDatePicker by remember { mutableStateOf(false) }
 
     val datePickerState = rememberDatePickerState(
+        // savedDateMillis가 null일 경우, datePickerState의 초기값을
+        // 현재 날짜로 설정합니다.
         initialSelectedDateMillis = savedDateMillis ?: System.currentTimeMillis(),
         initialDisplayMode = DisplayMode.Picker
     )
+
+    // ✅ [수정] 날짜가 외부에서 (DataStore 등) 변경되었을 때,
+    // DatePicker의 상태(datePickerState)도 함께 업데이트합니다.
+    LaunchedEffect(savedDateMillis) {
+        if (savedDateMillis != null) {
+            datePickerState.selectedDateMillis = savedDateMillis
+        }
+    }
 
     Column(
         modifier = modifier
@@ -116,17 +127,9 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
             Text("시작 날짜 변경하기")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(onClick = {
-            coroutineScope.launch {
-                val selectedDate = datePickerState.selectedDateMillis ?: System.currentTimeMillis()
-                saveStartDate(context, selectedDate)
-                DDayGlanceWidget.updateAllWidgets(context)
-            }
-        }) {
-            Text("저장하기")
-        }
+        // ✅ [제거] 기존 '저장하기' 버튼이 제거되었습니다.
+        // Spacer(modifier = Modifier.height(16.dp))
+        // Button(onClick = { ... }) { ... }
 
         Spacer(modifier = Modifier.height(24.dp))
         HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
@@ -139,10 +142,15 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
             confirmButton = {
                 TextButton(
                     onClick = {
-                        showDatePicker = false
-                        // TODO: "확인" 버튼을 눌렀을 때만 datePickerState의 날짜를
-                        // savedDateMillis에 반영할지, 아니면 즉시 반영할지 결정 필요.
-                        // 현재는 "저장하기" 버튼을 눌러야만 반영됨.
+                        showDatePicker = false // 1. 다이얼로그 닫기
+
+                        // ✅ [수정] 2. '확인' 버튼 클릭 시 즉시 저장 및 위젯 업데이트
+                        coroutineScope.launch {
+                            val selectedDate =
+                                datePickerState.selectedDateMillis ?: System.currentTimeMillis()
+                            saveStartDate(context, selectedDate)
+                            DDayGlanceWidget.updateAllWidgets(context)
+                        }
                     }
                 ) {
                     Text("확인")
