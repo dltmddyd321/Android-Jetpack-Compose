@@ -45,7 +45,7 @@ class DDayGlanceWidget : GlanceAppWidget() {
 
         val dDayString = if (startDateMillis != null) {
             val dDayCount = calculateDDay(startDateMillis)
-            "D+$dDayCount"
+            "$dDayCount"
         } else {
             "-"
         }
