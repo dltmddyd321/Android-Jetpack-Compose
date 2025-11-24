@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <application
@@ -15,6 +14,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CoupleWidgetApp">
         <activity
+            android:name=".AnniversarySettingActivity"
+            android:exported="false"
+            android:label="@string/title_activity_anniversary_setting"
+            android:theme="@style/Theme.CoupleWidgetApp" />
+        <activity
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.CoupleWidgetApp">
@@ -24,7 +28,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".LockScreenActivity"
             android:excludeFromRecents="true"
@@ -42,6 +45,7 @@
                 <action android:name="android.intent.action.TIMEZONE_CHANGED" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
+
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/dday_widget_info" />

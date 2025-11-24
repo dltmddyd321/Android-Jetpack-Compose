@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">CoupleWidgetApp</string>
+    <string name="app_name">플러브</string>
+    <string name="title_activity_anniversary_setting">AnniversarySettingActivity</string>
 </resources>
