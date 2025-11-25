@@ -144,7 +144,9 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
     ) {
         IconButton(
             onClick = {
-                // TODO: 설정 화면으로 이동하는 로직 추가
+                val intent = Intent(context, AnniversarySettingActivity::class.java)
+                intent.putExtra("BASE_DATE", savedDateMillis ?: System.currentTimeMillis())
+                context.startActivity(intent)
             },
             modifier = Modifier
                 .align(Alignment.TopEnd)
