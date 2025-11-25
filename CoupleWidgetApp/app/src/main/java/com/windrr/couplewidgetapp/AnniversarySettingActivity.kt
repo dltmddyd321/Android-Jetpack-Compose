@@ -59,16 +59,13 @@ class AnniversarySettingActivity : ComponentActivity() {
 
         setContent {
             CoupleWidgetAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    AnniversaryManagementScreen(
-                        modifier = Modifier.padding(innerPadding),
-                        baseStartDate = baseStartDate,
-                        viewModel = viewModel,
-                        onBackClick = {
-                            finish()
-                        }
-                    )
-                }
+                AnniversaryManagementScreen(
+                    baseStartDate = baseStartDate,
+                    viewModel = viewModel,
+                    onBackClick = {
+                        finish()
+                    }
+                )
             }
         }
     }
@@ -151,7 +148,9 @@ fun AnniversaryManagementScreen(
                             .padding(4.dp)
                     ) {
                         TabButton(text = "날짜 선택", isSelected = selectedTab == 0) { selectedTab = 0 }
-                        TabButton(text = "D-Day 입력", isSelected = selectedTab == 1) { selectedTab = 1 }
+                        TabButton(text = "D-Day 입력", isSelected = selectedTab == 1) {
+                            selectedTab = 1
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(20.dp))
@@ -186,12 +185,18 @@ fun AnniversaryManagementScreen(
                         ) {
                             Icon(Icons.Rounded.Star, contentDescription = null, tint = LovelyPink)
                             Spacer(modifier = Modifier.width(12.dp))
-                            Text(text = dateString, color = WarmText, fontWeight = FontWeight.Medium)
+                            Text(
+                                text = dateString,
+                                color = WarmText,
+                                fontWeight = FontWeight.Medium
+                            )
                         }
                     } else {
                         OutlinedTextField(
                             value = numberInput,
-                            onValueChange = { if (it.all { char -> char.isDigit() }) numberInput = it },
+                            onValueChange = {
+                                if (it.all { char -> char.isDigit() }) numberInput = it
+                            },
                             label = { Text("며칠째 되는 날인가요?") },
                             trailingIcon = { Text("일  ", color = SoftGray) },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -291,13 +296,18 @@ fun AnniversaryManagementScreen(
 
     // DatePicker UI (생략 없이 동일하게 유지)
     if (showDatePicker) {
-        val datePickerState = rememberDatePickerState(initialSelectedDateMillis = selectedDateMillis)
+        val datePickerState =
+            rememberDatePickerState(initialSelectedDateMillis = selectedDateMillis)
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
-            colors = DatePickerDefaults.colors(containerColor = CreamWhite, selectedDayContainerColor = LovelyPink),
+            colors = DatePickerDefaults.colors(
+                containerColor = CreamWhite,
+                selectedDayContainerColor = LovelyPink
+            ),
             confirmButton = {
                 TextButton(onClick = {
-                    selectedDateMillis = datePickerState.selectedDateMillis ?: System.currentTimeMillis()
+                    selectedDateMillis =
+                        datePickerState.selectedDateMillis ?: System.currentTimeMillis()
                     showDatePicker = false
                 }) { Text("확인", color = LovelyPink) }
             },
@@ -357,7 +367,12 @@ fun AnniversaryItemCard(
                     .background(CreamWhite),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Rounded.ThumbUp, contentDescription = null, tint = LovelyPink, modifier = Modifier.size(20.dp))
+                Icon(
+                    Icons.Rounded.ThumbUp,
+                    contentDescription = null,
+                    tint = LovelyPink,
+                    modifier = Modifier.size(20.dp)
+                )
             }
 
             Spacer(modifier = Modifier.width(16.dp))
@@ -406,11 +421,17 @@ fun formatDate(millis: Long): String {
 
 fun getDDayCount(targetMillis: Long): Long {
     val today = Calendar.getInstance().apply {
-        set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+        set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(
+        Calendar.SECOND,
+        0
+    ); set(Calendar.MILLISECOND, 0)
     }
     val target = Calendar.getInstance().apply {
         timeInMillis = targetMillis
-        set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+        set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(
+        Calendar.SECOND,
+        0
+    ); set(Calendar.MILLISECOND, 0)
     }
     val diff = target.timeInMillis - today.timeInMillis
     return diff / (24 * 60 * 60 * 1000)

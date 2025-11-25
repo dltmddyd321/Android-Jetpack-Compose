@@ -10,6 +10,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,9 +27,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DateRange
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -41,6 +44,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -127,6 +132,8 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
 
     val savedDateMillis by getStartDateFlow(context).collectAsState(initial = null)
     var showDatePicker by remember { mutableStateOf(false) }
+    val storedTitle by getStartTitle(context).collectAsState(initial = "우리가 사랑한 지")
+    var showTitleDialog by remember { mutableStateOf(false) }
 
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = savedDateMillis ?: System.currentTimeMillis(),
@@ -179,11 +186,98 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
             )
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text(
-                text = "우리가 사랑한 지",
-                style = MaterialTheme.typography.titleMedium,
-                color = SoftGray
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(12.dp))
+                    .clickable { showTitleDialog = true }
+                    .padding(horizontal = 12.dp, vertical = 6.dp)
+            ) {
+                Text(
+                    text = storedTitle,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = SoftGray
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Icon(
+                    imageVector = Icons.Rounded.Edit,
+                    contentDescription = "Edit Title",
+                    tint = SoftGray.copy(alpha = 0.6f),
+                    modifier = Modifier.size(14.dp)
+                )
+            }
+
+            if (showTitleDialog) {
+                var tempTitle by remember { mutableStateOf(storedTitle) }
+
+                AlertDialog(
+                    onDismissRequest = { showTitleDialog = false },
+                    containerColor = Color.White,
+                    title = {
+                        Text(
+                            text = "상단 문구 변경",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = WarmText
+                        )
+                    },
+                    text = {
+                        Column {
+                            Text(
+                                text = "홈 화면 상단에 표시될 문구를 입력해주세요.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = SoftGray
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            OutlinedTextField(
+                                value = tempTitle,
+                                onValueChange = {
+                                    if (it.length <= 15) tempTitle = it
+                                },
+                                placeholder = { Text("예) 우리가 사랑한 지") },
+                                singleLine = true,
+                                shape = RoundedCornerShape(12.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = LovelyPink,
+                                    focusedLabelColor = LovelyPink,
+                                    cursorColor = LovelyPink
+                                ),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            Text(
+                                text = "${tempTitle.length}/15",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = SoftGray,
+                                modifier = Modifier
+                                    .align(Alignment.End)
+                                    .padding(top = 4.dp)
+                            )
+                        }
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                if (tempTitle.isNotBlank()) {
+                                    coroutineScope.launch {
+                                        saveStartTitle(context, tempTitle)
+                                    }
+                                }
+                                showTitleDialog = false
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = LovelyPink),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text("변경", fontWeight = FontWeight.Bold)
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showTitleDialog = false }) {
+                            Text("취소", color = SoftGray)
+                        }
+                    },
+                    shape = RoundedCornerShape(20.dp)
+                )
+            }
 
             val dDayText = remember(savedDateMillis) {
                 if (savedDateMillis != null) {
