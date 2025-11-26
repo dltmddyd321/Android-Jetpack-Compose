@@ -1,4 +1,4 @@
-package com.windrr.couplewidgetapp
+package com.windrr.couplewidgetapp.activity
 
 import android.app.AlarmManager
 import android.content.Context
@@ -77,6 +77,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.windrr.couplewidgetapp.widget.DDayGlanceWidget
+import com.windrr.couplewidgetapp.dday.getStartDateFlow
+import com.windrr.couplewidgetapp.dday.getStartTitle
+import com.windrr.couplewidgetapp.dday.saveStartDate
+import com.windrr.couplewidgetapp.dday.saveStartTitle
 import com.windrr.couplewidgetapp.ui.theme.CoupleWidgetAppTheme
 import com.windrr.couplewidgetapp.ui.theme.CreamWhite
 import com.windrr.couplewidgetapp.ui.theme.LovelyPink
@@ -367,36 +372,42 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
     }
 
     if (showDatePicker) {
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            colors = DatePickerDefaults.colors(
-                containerColor = CreamWhite,
-                selectedDayContainerColor = LovelyPink,
-                todayDateBorderColor = LovelyPink,
-                todayContentColor = LovelyPink
-            ),
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showDatePicker = false
-                        coroutineScope.launch {
-                            val selectedDate =
-                                datePickerState.selectedDateMillis ?: System.currentTimeMillis()
-                            saveStartDate(context, selectedDate)
-                            DDayGlanceWidget.updateAllWidgets(context)
-                        }
-                    }
-                ) {
-                    Text("확인", color = LovelyPink, fontWeight = FontWeight.Bold)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) {
-                    Text("취소", color = SoftGray)
-                }
-            }
+        MaterialTheme(
+            colorScheme = MaterialTheme.colorScheme.copy(
+                primary = LovelyPink,
+                onPrimary = Color.White,
+                surface = Color.White,
+                onSurface = WarmText
+            )
         ) {
-            DatePicker(state = datePickerState)
+            DatePickerDialog(
+                onDismissRequest = { showDatePicker = false },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            showDatePicker = false
+                            coroutineScope.launch {
+                                val selectedDate =
+                                    datePickerState.selectedDateMillis ?: System.currentTimeMillis()
+                                saveStartDate(context, selectedDate)
+                                DDayGlanceWidget.updateAllWidgets(context)
+                            }
+                        }
+                    ) {
+                        Text("확인")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDatePicker = false }) {
+                        Text("취소")
+                    }
+                },
+                colors = DatePickerDefaults.colors(
+                    containerColor = Color.White
+                )
+            ) {
+                DatePicker(state = datePickerState)
+            }
         }
     }
 }

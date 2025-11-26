@@ -1,4 +1,4 @@
-package com.windrr.couplewidgetapp
+package com.windrr.couplewidgetapp.widget
 
 import android.content.Context
 import android.os.Build
@@ -26,6 +26,8 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
+import com.windrr.couplewidgetapp.R
+import com.windrr.couplewidgetapp.dday.getStartDateFlow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first

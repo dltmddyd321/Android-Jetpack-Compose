@@ -1,4 +1,4 @@
-package com.windrr.couplewidgetapp
+package com.windrr.couplewidgetapp.activity
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -34,6 +34,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
+import com.windrr.couplewidgetapp.anniversary.AnniversaryIntent
+import com.windrr.couplewidgetapp.anniversary.AnniversaryItem
+import com.windrr.couplewidgetapp.anniversary.AnniversarySideEffect
+import com.windrr.couplewidgetapp.anniversary.AnniversaryViewModel
+import com.windrr.couplewidgetapp.anniversary.AnniversaryViewModelFactory
+import com.windrr.couplewidgetapp.anniversary.AppDatabase
 import java.text.SimpleDateFormat
 import java.util.*
 import com.windrr.couplewidgetapp.ui.theme.CoupleWidgetAppTheme
@@ -298,24 +304,38 @@ fun AnniversaryManagementScreen(
     if (showDatePicker) {
         val datePickerState =
             rememberDatePickerState(initialSelectedDateMillis = selectedDateMillis)
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            colors = DatePickerDefaults.colors(
-                containerColor = CreamWhite,
-                selectedDayContainerColor = LovelyPink
-            ),
-            confirmButton = {
-                TextButton(onClick = {
-                    selectedDateMillis =
-                        datePickerState.selectedDateMillis ?: System.currentTimeMillis()
-                    showDatePicker = false
-                }) { Text("확인", color = LovelyPink) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) { Text("취소", color = SoftGray) }
-            }
+        MaterialTheme(
+            colorScheme = MaterialTheme.colorScheme.copy(
+                primary = LovelyPink,
+                onPrimary = Color.White,
+                surface = Color.White,
+                onSurface = WarmText
+            )
         ) {
-            DatePicker(state = datePickerState)
+            DatePickerDialog(
+                onDismissRequest = { showDatePicker = false },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            selectedDateMillis =
+                                datePickerState.selectedDateMillis ?: System.currentTimeMillis()
+                            showDatePicker = false
+                        }
+                    ) {
+                        Text("확인")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDatePicker = false }) {
+                        Text("취소")
+                    }
+                },
+                colors = DatePickerDefaults.colors(
+                    containerColor = Color.White
+                )
+            ) {
+                DatePicker(state = datePickerState)
+            }
         }
     }
 }

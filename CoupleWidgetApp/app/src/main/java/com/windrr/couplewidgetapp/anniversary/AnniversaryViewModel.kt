@@ -1,4 +1,4 @@
-package com.windrr.couplewidgetapp
+package com.windrr.couplewidgetapp.anniversary
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

@@ -1,4 +1,4 @@
-package com.windrr.couplewidgetapp
+package com.windrr.couplewidgetapp.widget
 
 import android.app.AlarmManager
 import android.app.PendingIntent

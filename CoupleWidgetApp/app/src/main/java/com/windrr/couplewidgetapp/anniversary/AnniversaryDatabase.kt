@@ -1,4 +1,4 @@
-package com.windrr.couplewidgetapp
+package com.windrr.couplewidgetapp.anniversary
 
 import android.content.Context
 import androidx.room.Entity

@@ -1,4 +1,4 @@
-package com.windrr.couplewidgetapp
+package com.windrr.couplewidgetapp.dday
 
 import android.content.Context
 import androidx.datastore.core.DataStore

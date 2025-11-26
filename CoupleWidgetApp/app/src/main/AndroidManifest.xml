@@ -14,12 +14,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CoupleWidgetApp">
         <activity
-            android:name=".AnniversarySettingActivity"
+            android:name=".activity.AnniversarySettingActivity"
             android:exported="false"
             android:label="@string/title_activity_anniversary_setting"
             android:theme="@style/Theme.CoupleWidgetApp" />
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.CoupleWidgetApp">
             <intent-filter>
@@ -30,7 +30,7 @@
         </activity>
 
         <receiver
-            android:name=".DDayGlanceWidgetReceiver"
+            android:name=".widget.DDayGlanceWidgetReceiver"
             android:exported="false"
             android:label="D-Day">
             <intent-filter>
