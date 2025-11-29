@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -87,11 +88,10 @@ fun AnniversaryManagementScreen(
 ) {
     val context = LocalContext.current
 
-    // [MVI - View] 1. State 구독 (UI 상태 동기화)
-    // collectAsStateWithLifecycle()을 쓰면 앱이 백그라운드로 갈 때 리소스 절약 가능
+    // [MVI - View] 1. State 구독
     val state by viewModel.state.collectAsState()
 
-    // [MVI - View] 2. SideEffect 처리 (토스트 메시지 등)
+    // [MVI - View] 2. SideEffect 처리
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
@@ -102,7 +102,6 @@ fun AnniversaryManagementScreen(
         }
     }
 
-    // --- UI 입력 상태 (View 내부 상태) ---
     var selectedTab by remember { mutableIntStateOf(0) }
     var titleInput by remember { mutableStateOf("") }
     var selectedDateMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
@@ -120,13 +119,12 @@ fun AnniversaryManagementScreen(
             .padding(24.dp)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            // 헤더 영역
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 IconButton(onClick = onBackClick) {
-                    Icon(Icons.Rounded.ArrowBack, contentDescription = "Back", tint = SoftGray)
+                    Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back", tint = SoftGray)
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
@@ -138,7 +136,6 @@ fun AnniversaryManagementScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // 입력 카드
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
@@ -146,7 +143,6 @@ fun AnniversaryManagementScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
-                    // 탭 버튼들
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -161,7 +157,6 @@ fun AnniversaryManagementScreen(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // 제목 입력
                     OutlinedTextField(
                         value = titleInput,
                         onValueChange = { titleInput = it },
@@ -171,16 +166,19 @@ fun AnniversaryManagementScreen(
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = LovelyPink,
                             focusedLabelColor = LovelyPink,
-                            cursorColor = LovelyPink
+                            cursorColor = LovelyPink,
+                            focusedTextColor = Color.Black,
+                            unfocusedTextColor = Color.Black
                         ),
                         modifier = Modifier.fillMaxWidth()
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // 탭에 따른 입력 UI
                     if (selectedTab == 0) {
-                        val dateString = formatDate(selectedDateMillis)
+                        val displayDateMillis = calculateNextAnniversaryDate(selectedDateMillis)
+                        val dateString = formatDate(displayDateMillis)
+
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier
@@ -197,6 +195,12 @@ fun AnniversaryManagementScreen(
                                 fontWeight = FontWeight.Medium
                             )
                         }
+                        Text(
+                            text = "매년 반복되는 기념일로 계산됩니다.",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = SoftGray,
+                            modifier = Modifier.padding(top = 4.dp, start = 4.dp)
+                        )
                     } else {
                         OutlinedTextField(
                             value = numberInput,
@@ -211,7 +215,9 @@ fun AnniversaryManagementScreen(
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = LovelyPink,
                                 focusedLabelColor = LovelyPink,
-                                cursorColor = LovelyPink
+                                cursorColor = LovelyPink,
+                                focusedTextColor = Color.Black,
+                                unfocusedTextColor = Color.Black
                             ),
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -219,19 +225,18 @@ fun AnniversaryManagementScreen(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // [MVI - Intent] 등록 버튼 클릭 시 Intent 전달
                     Button(
                         onClick = {
                             if (titleInput.isBlank()) return@Button
 
                             val (finalDate, finalCount) = if (selectedTab == 0) {
-                                selectedDateMillis to 0
+                                val recurringDate = calculateNextAnniversaryDate(selectedDateMillis)
+                                recurringDate to 0
                             } else {
                                 val days = numberInput.toIntOrNull() ?: 0
                                 calculateDateFromBase(baseStartDate, days.toLong()) to days
                             }
 
-                            // ViewModel에게 "추가해줘"라는 Intent 전송
                             viewModel.handleIntent(
                                 AnniversaryIntent.AddAnniversary(
                                     title = titleInput,
@@ -240,7 +245,6 @@ fun AnniversaryManagementScreen(
                                 )
                             )
 
-                            // 입력창 초기화
                             titleInput = ""
                             numberInput = ""
                         },
@@ -257,7 +261,6 @@ fun AnniversaryManagementScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // 리스트 헤더
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -270,7 +273,6 @@ fun AnniversaryManagementScreen(
                     modifier = Modifier.padding(start = 4.dp)
                 )
 
-                // 로딩 인디케이터 (State.isLoading 활용)
                 if (state.isLoading) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(20.dp),
@@ -282,7 +284,6 @@ fun AnniversaryManagementScreen(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // [MVI - View] 리스트 렌더링 (State.anniversaries 활용)
             LazyColumn(
                 contentPadding = PaddingValues(bottom = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -290,7 +291,6 @@ fun AnniversaryManagementScreen(
                 items(state.anniversaries) { item ->
                     AnniversaryItemCard(
                         item = item,
-                        // 롱 클릭 시 삭제 Intent 전송
                         onLongClick = {
                             viewModel.handleIntent(AnniversaryIntent.DeleteAnniversary(item.id))
                         }
@@ -300,7 +300,6 @@ fun AnniversaryManagementScreen(
         }
     }
 
-    // DatePicker UI (생략 없이 동일하게 유지)
     if (showDatePicker) {
         val datePickerState =
             rememberDatePickerState(initialSelectedDateMillis = selectedDateMillis)
@@ -388,7 +387,7 @@ fun AnniversaryItemCard(
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    Icons.Rounded.ThumbUp,
+                    if (item.dateCount > 0) Icons.Rounded.ThumbUp else Icons.Rounded.Star,
                     contentDescription = null,
                     tint = LovelyPink,
                     modifier = Modifier.size(20.dp)
@@ -441,18 +440,44 @@ fun formatDate(millis: Long): String {
 
 fun getDDayCount(targetMillis: Long): Long {
     val today = Calendar.getInstance().apply {
-        set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(
-        Calendar.SECOND,
-        0
-    ); set(Calendar.MILLISECOND, 0)
+        set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0);
+        set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
     }
     val target = Calendar.getInstance().apply {
         timeInMillis = targetMillis
-        set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(
-        Calendar.SECOND,
-        0
-    ); set(Calendar.MILLISECOND, 0)
+        set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0);
+        set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
     }
     val diff = target.timeInMillis - today.timeInMillis
     return diff / (24 * 60 * 60 * 1000)
+}
+
+/**
+ * [추가된 로직]
+ * 선택된 날짜의 월/일을 기준으로, 가장 가까운 미래의 날짜(D-Day)를 계산합니다.
+ * 예: 오늘이 11월 29일인데 3월 25일을 선택하면, 내년 3월 25일로 설정됩니다.
+ */
+fun calculateNextAnniversaryDate(selectedMillis: Long): Long {
+    val today = Calendar.getInstance().apply {
+        set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0);
+        set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+    }
+
+    val selected = Calendar.getInstance().apply {
+        timeInMillis = selectedMillis
+    }
+
+    val target = Calendar.getInstance().apply {
+        set(Calendar.YEAR, today.get(Calendar.YEAR))
+        set(Calendar.MONTH, selected.get(Calendar.MONTH))
+        set(Calendar.DAY_OF_MONTH, selected.get(Calendar.DAY_OF_MONTH))
+        set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0);
+        set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+    }
+
+    if (target.before(today)) {
+        target.add(Calendar.YEAR, 1)
+    }
+
+    return target.timeInMillis
 }
