@@ -91,6 +91,16 @@ fun AnniversaryManagementScreen(
     // [MVI - View] 1. State 구독
     val state by viewModel.state.collectAsState()
 
+    val sortedAnniversaries = remember(state.anniversaries) {
+        state.anniversaries.sortedBy { item ->
+            if (item.dateCount == 0) {
+                calculateNextAnniversaryDate(item.dateMillis)
+            } else {
+                item.dateMillis
+            }
+        }
+    }
+
     // [MVI - View] 2. SideEffect 처리
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
@@ -124,7 +134,11 @@ fun AnniversaryManagementScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 IconButton(onClick = onBackClick) {
-                    Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "Back", tint = SoftGray)
+                    Icon(
+                        Icons.AutoMirrored.Rounded.ArrowBack,
+                        contentDescription = "Back",
+                        tint = SoftGray
+                    )
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
@@ -196,7 +210,7 @@ fun AnniversaryManagementScreen(
                             )
                         }
                         Text(
-                            text = "매년 반복되는 기념일로 계산됩니다.",
+                            text = "매년 반복되는 기념일로 저장됩니다.",
                             style = MaterialTheme.typography.labelSmall,
                             color = SoftGray,
                             modifier = Modifier.padding(top = 4.dp, start = 4.dp)
@@ -230,8 +244,7 @@ fun AnniversaryManagementScreen(
                             if (titleInput.isBlank()) return@Button
 
                             val (finalDate, finalCount) = if (selectedTab == 0) {
-                                val recurringDate = calculateNextAnniversaryDate(selectedDateMillis)
-                                recurringDate to 0
+                                selectedDateMillis to 0
                             } else {
                                 val days = numberInput.toIntOrNull() ?: 0
                                 calculateDateFromBase(baseStartDate, days.toLong()) to days
@@ -288,7 +301,7 @@ fun AnniversaryManagementScreen(
                 contentPadding = PaddingValues(bottom = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(state.anniversaries) { item ->
+                items(sortedAnniversaries) { item ->
                     AnniversaryItemCard(
                         item = item,
                         onLongClick = {
@@ -364,6 +377,12 @@ fun AnniversaryItemCard(
     item: AnniversaryItem,
     onLongClick: () -> Unit
 ) {
+    val displayMillis = if (item.dateCount == 0) {
+        calculateNextAnniversaryDate(item.dateMillis)
+    } else {
+        item.dateMillis
+    }
+
     Card(
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(16.dp),
@@ -404,13 +423,13 @@ fun AnniversaryItemCard(
                     color = WarmText
                 )
                 Text(
-                    text = formatDate(item.dateMillis),
+                    text = formatDate(displayMillis),
                     style = MaterialTheme.typography.bodyMedium,
                     color = SoftGray
                 )
             }
 
-            val dDay = getDDayCount(item.dateMillis)
+            val dDay = getDDayCount(displayMillis)
             val dDayString = when {
                 dDay == 0L -> "Today"
                 dDay > 0 -> "D-${dDay}"
@@ -453,9 +472,7 @@ fun getDDayCount(targetMillis: Long): Long {
 }
 
 /**
- * [추가된 로직]
  * 선택된 날짜의 월/일을 기준으로, 가장 가까운 미래의 날짜(D-Day)를 계산합니다.
- * 예: 오늘이 11월 29일인데 3월 25일을 선택하면, 내년 3월 25일로 설정됩니다.
  */
 fun calculateNextAnniversaryDate(selectedMillis: Long): Long {
     val today = Calendar.getInstance().apply {
