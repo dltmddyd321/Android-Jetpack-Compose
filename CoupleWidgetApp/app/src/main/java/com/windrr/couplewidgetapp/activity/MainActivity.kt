@@ -30,6 +30,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.AlertDialog
@@ -145,6 +146,7 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
     var showDatePicker by remember { mutableStateOf(false) }
     val storedTitle by getStartTitle(context).collectAsState(initial = "우리가 사랑한 지")
     var showTitleDialog by remember { mutableStateOf(false) }
+    var showGuideDialog by remember { mutableStateOf(false) }
 
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = savedDateMillis ?: System.currentTimeMillis(),
@@ -160,6 +162,20 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
     ) {
+        IconButton(
+            onClick = { showGuideDialog = true },
+            modifier = Modifier
+                .align(Alignment.TopStart)
+                .padding(16.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Info,
+                contentDescription = "가이드",
+                tint = SoftGray,
+                modifier = Modifier.size(28.dp)
+            )
+        }
+
         IconButton(
             onClick = {
                 val intent = Intent(context, AnniversarySettingActivity::class.java)
