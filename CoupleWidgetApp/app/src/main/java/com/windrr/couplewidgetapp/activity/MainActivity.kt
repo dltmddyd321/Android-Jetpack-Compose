@@ -10,6 +10,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,15 +20,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Favorite
@@ -43,12 +49,14 @@ import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -68,7 +76,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -76,9 +86,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.windrr.couplewidgetapp.R
 import com.windrr.couplewidgetapp.widget.DDayGlanceWidget
 import com.windrr.couplewidgetapp.dday.getStartDateFlow
 import com.windrr.couplewidgetapp.dday.getStartTitle
@@ -432,6 +445,90 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
             }
         }
     }
+
+    if (showGuideDialog) {
+        Dialog(
+            onDismissRequest = { showGuideDialog = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false)
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = CreamWhite
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "D-Day 잠금화면 표시 방법",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = WarmText
+                        )
+                        IconButton(onClick = { showGuideDialog = false }) {
+                            Icon(Icons.Rounded.Close, contentDescription = "닫기", tint = SoftGray)
+                        }
+                    }
+
+                    HorizontalDivider(color = SoftPeach.copy(alpha = 0.5f))
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .verticalScroll(rememberScrollState())
+                            .padding(24.dp),
+                        verticalArrangement = Arrangement.spacedBy(40.dp)
+                    ) {
+                        GuidePageItem(
+                            step = 1,
+                            title = "Good Lock 설치",
+                            description = "갤럭시 스토어에서 Good Lock을 검색 후, 설치합니다.",
+                            imageResId = R.drawable.guide_first
+                        )
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        GuidePageItem(
+                            step = 2,
+                            title = "LockStar 실행",
+                            description = "LockStar를 검섹 후, 실행합니다.",
+                            imageResId = R.drawable.guide_second
+                        )
+
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        GuidePageItem(
+                            step = 3,
+                            title = "D-Day 위젯 추가",
+                            description = "앱 위젯 항목을 클릭하여 D-Day 위젯을 추가하세요.",
+                            imageResId = R.drawable.guide_third
+                        )
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        Button(
+                            onClick = { showGuideDialog = false },
+                            colors = ButtonDefaults.buttonColors(containerColor = LovelyPink),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text("이제 시작해볼까요? 💖", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -570,4 +667,66 @@ private fun calculateDDay(startDateMillis: Long): Long {
 
     val diffMillis = today.timeInMillis - start.timeInMillis
     return (diffMillis / (24 * 60 * 60 * 1000)) + 1
+}
+
+@Composable
+fun GuidePageItem(
+    step: Int,
+    title: String,
+    description: String,
+    @DrawableRes imageResId: Int
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Box(
+            modifier = Modifier
+                .background(LovelyPink.copy(alpha = 0.1f), RoundedCornerShape(20.dp))
+                .padding(horizontal = 12.dp, vertical = 6.dp)
+        ) {
+            Text(
+                text = "Step $step",
+                style = MaterialTheme.typography.labelMedium,
+                color = LovelyPink,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = WarmText
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = description,
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.Black,
+            textAlign = TextAlign.Center,
+            lineHeight = 20.sp
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .aspectRatio(0.6f)
+        ) {
+            Image(
+                painter = painterResource(id = imageResId),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+    }
 }
