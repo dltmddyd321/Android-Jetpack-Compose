@@ -61,6 +61,10 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/anniversary_list_widget_info" />
         </receiver>
+
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-2156013754929909~6931271244"/>
     </application>
 
 </manifest>

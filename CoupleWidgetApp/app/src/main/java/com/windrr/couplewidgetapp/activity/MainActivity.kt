@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -91,12 +92,14 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.google.android.gms.ads.MobileAds
 import com.windrr.couplewidgetapp.R
 import com.windrr.couplewidgetapp.widget.DDayGlanceWidget
 import com.windrr.couplewidgetapp.dday.getStartDateFlow
 import com.windrr.couplewidgetapp.dday.getStartTitle
 import com.windrr.couplewidgetapp.dday.saveStartDate
 import com.windrr.couplewidgetapp.dday.saveStartTitle
+import com.windrr.couplewidgetapp.ui.AdMobBanner
 import com.windrr.couplewidgetapp.ui.theme.CoupleWidgetAppTheme
 import com.windrr.couplewidgetapp.ui.theme.CreamWhite
 import com.windrr.couplewidgetapp.ui.theme.LovelyPink
@@ -116,6 +119,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        MobileAds.initialize(this) {}
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.light(
                 android.graphics.Color.TRANSPARENT,
