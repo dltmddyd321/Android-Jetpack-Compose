@@ -50,6 +50,9 @@ import com.windrr.couplewidgetapp.ui.theme.LovelyPink
 import com.windrr.couplewidgetapp.ui.theme.SoftGray
 import com.windrr.couplewidgetapp.ui.theme.SoftPeach
 import com.windrr.couplewidgetapp.ui.theme.WarmText
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import kotlin.math.min
 
 class AnniversarySettingActivity : ComponentActivity() {
 
@@ -507,4 +510,37 @@ fun calculateNextAnniversaryDate(selectedMillis: Long): Long {
     }
 
     return target.timeInMillis
+}
+
+fun main() {
+    val br = BufferedReader(InputStreamReader(System.`in`))
+
+    // 집의 수 N 입력
+    val n = br.readLine().toInt()
+
+    // DP 테이블 초기화 (N개의 집에 대해 R, G, B 3가지 경우의 수)
+    val dp = Array(n) { IntArray(3) }
+
+    var st = StringTokenizer(br.readLine())
+    dp[0][0] = st.nextToken().toInt()
+    dp[0][1] = st.nextToken().toInt()
+    dp[0][2] = st.nextToken().toInt()
+
+    for (i in 1 until n) {
+        st = StringTokenizer(br.readLine())
+        val r = st.nextToken().toInt()
+        val g = st.nextToken().toInt()
+        val b = st.nextToken().toInt()
+
+        // 현재 집을 빨강으로 칠할 경우: 이전 집은 초록 vs 파랑 중 싼 것 선택
+        dp[i][0] = r + min(dp[i-1][1], dp[i-1][2])
+
+        // 현재 집을 초록으로 칠할 경우: 이전 집은 빨강 vs 파랑 중 싼 것 선택
+        dp[i][1] = g + min(dp[i-1][0], dp[i-1][2])
+
+        // 현재 집을 파랑으로 칠할 경우: 이전 집은 빨강 vs 초록 중 싼 것 선택
+        dp[i][2] = b + min(dp[i-1][0], dp[i-1][1])
+    }
+
+    println(min(dp[n-1][0], min(dp[n-1][1], dp[n-1][2])))
 }
