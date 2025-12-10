@@ -12,6 +12,7 @@ import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.provideContent
 import androidx.glance.appwidget.updateAll
 import androidx.glance.background
@@ -116,10 +117,12 @@ class DDayGlanceWidget : GlanceAppWidget() {
     }
 
     companion object {
-        fun updateAllWidgets(context: Context) {
-            CoroutineScope(Dispatchers.IO).launch {
-                DDayGlanceWidget().updateAll(context)
-            }
+        suspend fun updateAllWidgets(context: Context) {
+            GlanceAppWidgetManager(context)
+                .getGlanceIds(DDayGlanceWidget::class.java)
+                .forEach { glanceId ->
+                    DDayGlanceWidget().update(context, glanceId)
+                }
         }
     }
 }

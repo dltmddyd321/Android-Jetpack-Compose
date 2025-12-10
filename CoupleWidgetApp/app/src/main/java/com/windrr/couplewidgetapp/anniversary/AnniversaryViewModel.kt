@@ -1,10 +1,7 @@
 package com.windrr.couplewidgetapp.anniversary
 
-import android.content.Context
-import androidx.glance.appwidget.updateAll
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.windrr.couplewidgetapp.widget.AnniversaryListWidget
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -70,9 +67,4 @@ class AnniversaryViewModel(
         }
     }
 
-    private fun updateWidget(context: Context) {
-        viewModelScope.launch {
-            AnniversaryListWidget().updateAll(context)
-        }
-    }
 }
