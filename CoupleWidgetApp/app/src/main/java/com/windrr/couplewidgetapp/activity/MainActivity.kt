@@ -195,18 +195,34 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
     ) {
-        IconButton(
-            onClick = { showGuideDialog = true },
+        Surface(
             modifier = Modifier
                 .align(Alignment.TopStart)
                 .padding(16.dp)
+                .clip(CircleShape)
+                .clickable { showGuideDialog = true },
+            shape = CircleShape,
+            color = Color.White,
+            shadowElevation = 4.dp
         ) {
-            Icon(
-                imageVector = Icons.Rounded.Info,
-                contentDescription = "가이드",
-                tint = SoftGray,
-                modifier = Modifier.size(28.dp)
-            )
+            Row(
+                modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Info,
+                    contentDescription = null,
+                    tint = LovelyPink,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = "위젯 설정 방법",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = SoftGray,
+                    fontWeight = FontWeight.Bold
+                )
+            }
         }
 
         IconButton(
