@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -99,18 +98,18 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.ads.MobileAds
 import com.windrr.couplewidgetapp.R
-import com.windrr.couplewidgetapp.widget.DDayGlanceWidget
 import com.windrr.couplewidgetapp.dday.getStartDateFlow
 import com.windrr.couplewidgetapp.dday.getStartTitle
 import com.windrr.couplewidgetapp.dday.saveStartDate
 import com.windrr.couplewidgetapp.dday.saveStartTitle
-import com.windrr.couplewidgetapp.ui.AdMobBanner
 import com.windrr.couplewidgetapp.ui.theme.CoupleWidgetAppTheme
 import com.windrr.couplewidgetapp.ui.theme.CreamWhite
 import com.windrr.couplewidgetapp.ui.theme.LovelyPink
 import com.windrr.couplewidgetapp.ui.theme.SoftGray
 import com.windrr.couplewidgetapp.ui.theme.SoftPeach
 import com.windrr.couplewidgetapp.ui.theme.WarmText
+import com.windrr.couplewidgetapp.widget.DDayGlanceWidget
+import com.windrr.couplewidgetapp.widget.DDayGlanceWidgetReceiver
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.Instant
@@ -127,6 +126,7 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             DDayGlanceWidget.updateAllWidgets(applicationContext)
         }
+        DDayGlanceWidgetReceiver.scheduleNextMidnightUpdate(applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
