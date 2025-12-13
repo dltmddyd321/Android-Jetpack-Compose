@@ -119,6 +119,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import androidx.core.net.toUri
 
 class MainActivity : ComponentActivity() {
 
@@ -334,11 +335,11 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                             onClick = {
                                 val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                                     Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
-                                        data = Uri.parse("package:${context.packageName}")
+                                        data = "package:${context.packageName}".toUri()
                                     }
                                 } else {
                                     Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                        data = Uri.parse("package:${context.packageName}")
+                                        data = "package:${context.packageName}".toUri()
                                     }
                                 }
                                 context.startActivity(intent)
