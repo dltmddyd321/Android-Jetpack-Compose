@@ -3,6 +3,7 @@ package com.windrr.couplewidgetapp.activity
 import android.app.AlarmManager
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -174,17 +175,35 @@ class MainActivity : ComponentActivity() {
 fun DDaySettingsScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     val savedDateMillis by getStartDateFlow(context).collectAsState(initial = null)
     var showDatePicker by remember { mutableStateOf(false) }
     val storedTitle by getStartTitle(context).collectAsState(initial = "우리가 사랑한 지")
     var showTitleDialog by remember { mutableStateOf(false) }
     var showGuideDialog by remember { mutableStateOf(false) }
+    var showPermissionDialog by remember { mutableStateOf(false) }
 
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = savedDateMillis ?: System.currentTimeMillis(),
         initialDisplayMode = DisplayMode.Picker
     )
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    val alarmManager =
+                        context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                    showPermissionDialog = !alarmManager.canScheduleExactAlarms()
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
 
     LaunchedEffect(savedDateMillis) {
         if (savedDateMillis != null) {
@@ -280,6 +299,62 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                     contentDescription = "Edit Title",
                     tint = SoftGray.copy(alpha = 0.6f),
                     modifier = Modifier.size(14.dp)
+                )
+            }
+
+            if (showPermissionDialog) {
+                AlertDialog(
+                    onDismissRequest = { /* 강제성이 필요하므로 배경 클릭으로 닫기 방지 */ },
+                    containerColor = Color.White,
+                    icon = {
+                        Icon(
+                            Icons.Rounded.Notifications,
+                            contentDescription = null,
+                            tint = Color(0xFFFF9800)
+                        )
+                    },
+                    title = {
+                        Text(
+                            text = "필수 권한 안내",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = WarmText
+                        )
+                    },
+                    text = {
+                        Text(
+                            text = "위젯이 매일 자정에 정확히 갱신되려면\n'알람 및 리마인더' 권한이 꼭 필요해요.\n\n설정에서 권한을 허용해주세요.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = SoftGray,
+                            textAlign = TextAlign.Center
+                        )
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                    Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                                        data = Uri.parse("package:${context.packageName}")
+                                    }
+                                } else {
+                                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                        data = Uri.parse("package:${context.packageName}")
+                                    }
+                                }
+                                context.startActivity(intent)
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = LovelyPink),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text("설정하러 가기", fontWeight = FontWeight.Bold)
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showPermissionDialog = false }) {
+                            Text("나중에", color = SoftGray)
+                        }
+                    },
+                    shape = RoundedCornerShape(20.dp)
                 )
             }
 
