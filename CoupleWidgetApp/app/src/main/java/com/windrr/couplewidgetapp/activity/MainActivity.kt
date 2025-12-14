@@ -1,16 +1,20 @@
 package com.windrr.couplewidgetapp.activity
 
+import android.Manifest
 import android.app.AlarmManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -93,6 +97,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -193,11 +199,22 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    val alarmManager =
-                        context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                    showPermissionDialog = !alarmManager.canScheduleExactAlarms()
+                // Android 13+ 알림 권한 체크
+                val isNotificationGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
+                } else {
+                    true
                 }
+
+                // Android 12+ 정확한 알람 권한 체크
+                val isExactAlarmGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                    alarmManager.canScheduleExactAlarms()
+                } else {
+                    true
+                }
+
+                showPermissionDialog = !isNotificationGranted || !isExactAlarmGranted
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -304,15 +321,28 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
             }
 
             if (showPermissionDialog) {
+                val permissionLauncher = rememberLauncherForActivityResult(
+                    ActivityResultContracts.RequestPermission()
+                ) { isGranted ->
+                    if (isGranted) {
+                        val isExactAlarmGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                            alarmManager.canScheduleExactAlarms()
+                        } else {
+                            true
+                        }
+
+                        if (isExactAlarmGranted) {
+                            showPermissionDialog = false
+                        }
+                    }
+                }
+
                 AlertDialog(
                     onDismissRequest = { /* 강제성이 필요하므로 배경 클릭으로 닫기 방지 */ },
                     containerColor = Color.White,
                     icon = {
-                        Icon(
-                            Icons.Rounded.Notifications,
-                            contentDescription = null,
-                            tint = Color(0xFFFF9800)
-                        )
+                        Icon(Icons.Rounded.Notifications, contentDescription = null, tint = Color(0xFFFF9800))
                     },
                     title = {
                         Text(
@@ -324,7 +354,7 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                     },
                     text = {
                         Text(
-                            text = "위젯이 매일 자정에 정확히 갱신되려면\n'알람 및 리마인더' 권한이 꼭 필요해요.\n\n설정에서 권한을 허용해주세요.",
+                            text = "위젯이 매일 자정에 정확히 갱신되려면\n'알람 및 리마인더' 권한과 '알림' 권한이 필요해요.\n\n설정에서 권한을 모두 허용해주세요.",
                             style = MaterialTheme.typography.bodyMedium,
                             color = SoftGray,
                             textAlign = TextAlign.Center
@@ -333,21 +363,34 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                     confirmButton = {
                         Button(
                             onClick = {
-                                val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                                    Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
-                                        data = "package:${context.packageName}".toUri()
-                                    }
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                                    checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+                                ) {
+                                    permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                                 } else {
-                                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                        data = "package:${context.packageName}".toUri()
+                                    val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                                        if (!alarmManager.canScheduleExactAlarms()) {
+                                            Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                                                data = "package:${context.packageName}".toUri()
+                                            }
+                                        } else {
+                                            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                                data = "package:${context.packageName}".toUri()
+                                            }
+                                        }
+                                    } else {
+                                        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                            data = "package:${context.packageName}".toUri()
+                                        }
                                     }
+                                    context.startActivity(intent)
                                 }
-                                context.startActivity(intent)
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = LovelyPink),
                             shape = RoundedCornerShape(8.dp)
                         ) {
-                            Text("설정하러 가기", fontWeight = FontWeight.Bold)
+                            Text("권한 허용 / 설정하기", fontWeight = FontWeight.Bold)
                         }
                     },
                     dismissButton = {
