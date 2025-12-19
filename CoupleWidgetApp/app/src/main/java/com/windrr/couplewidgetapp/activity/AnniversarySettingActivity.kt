@@ -427,7 +427,13 @@ fun RowScope.TabButton(text: String, isSelected: Boolean, onClick: () -> Unit) {
 fun AnniversaryItemCard(
     item: AnniversaryItem
 ) {
-    val displayMillis = if (item.dateCount == 0) {
+    val displayDateText = if (item.dateCount == 0) {
+        formatAnnualDate(item.dateMillis)
+    } else {
+        formatDate(item.dateMillis)
+    }
+
+    val targetMillisForDDay = if (item.dateCount == 0) {
         calculateNextAnniversaryDate(item.dateMillis)
     } else {
         item.dateMillis
@@ -467,14 +473,15 @@ fun AnniversaryItemCard(
                     fontWeight = FontWeight.Bold,
                     color = WarmText
                 )
+                // [수정] 위에서 계산한 포맷팅된 날짜 텍스트 사용
                 Text(
-                    text = formatDate(displayMillis),
+                    text = displayDateText,
                     style = MaterialTheme.typography.bodyMedium,
                     color = SoftGray
                 )
             }
 
-            val dDay = getDDayCount(displayMillis)
+            val dDay = getDDayCount(targetMillisForDDay)
             val dDayString = when {
                 dDay == 0L -> "Today"
                 dDay > 0 -> "D-${dDay}"
@@ -489,6 +496,11 @@ fun AnniversaryItemCard(
             )
         }
     }
+}
+
+fun formatAnnualDate(millis: Long): String {
+    val formatter = SimpleDateFormat("M월 d일", Locale.KOREA)
+    return "매년 " + formatter.format(Date(millis))
 }
 
 fun calculateDateFromBase(baseMillis: Long, days: Long): Long {
