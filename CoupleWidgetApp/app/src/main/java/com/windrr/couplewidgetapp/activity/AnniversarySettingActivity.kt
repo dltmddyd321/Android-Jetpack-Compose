@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import android.widget.Toast
 import androidx.activity.SystemBarStyle
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -314,11 +315,49 @@ fun AnniversaryManagementScreen(
                 contentPadding = PaddingValues(bottom = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(sortedAnniversaries) { item ->
-                    AnniversaryItemCard(
-                        item = item,
-                        onLongClick = {
-                            viewModel.handleIntent(AnniversaryIntent.DeleteAnniversary(item.id))
+                items(
+                    items = sortedAnniversaries,
+                    key = { it.id }
+                ) { item ->
+                    val dismissState = rememberSwipeToDismissBoxState(
+                        confirmValueChange = {
+                            if (it == SwipeToDismissBoxValue.EndToStart) {
+                                viewModel.handleIntent(AnniversaryIntent.DeleteAnniversary(item.id))
+                                true
+                            } else {
+                                false
+                            }
+                        }
+                    )
+
+                    SwipeToDismissBox(
+                        state = dismissState,
+                        backgroundContent = {
+                            val color by animateColorAsState(
+                                targetValue = if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart) Color(
+                                    0xFFFF5252
+                                ) else Color.Transparent,
+                                label = "DismissColor"
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(color, RoundedCornerShape(16.dp))
+                                    .padding(end = 24.dp),
+                                contentAlignment = Alignment.CenterEnd
+                            ) {
+                                if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart) {
+                                    Icon(
+                                        imageVector = Icons.Rounded.Delete,
+                                        contentDescription = "Delete",
+                                        tint = Color.White
+                                    )
+                                }
+                            }
+                        },
+                        enableDismissFromStartToEnd = false,
+                        content = {
+                            AnniversaryItemCard(item = item)
                         }
                     )
                 }
@@ -384,11 +423,9 @@ fun RowScope.TabButton(text: String, isSelected: Boolean, onClick: () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AnniversaryItemCard(
-    item: AnniversaryItem,
-    onLongClick: () -> Unit
+    item: AnniversaryItem
 ) {
     val displayMillis = if (item.dateCount == 0) {
         calculateNextAnniversaryDate(item.dateMillis)
@@ -400,12 +437,7 @@ fun AnniversaryItemCard(
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .combinedClickable(
-                onClick = {},
-                onLongClick = onLongClick
-            )
+        modifier = Modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -533,14 +565,14 @@ fun main() {
         val b = st.nextToken().toInt()
 
         // 현재 집을 빨강으로 칠할 경우: 이전 집은 초록 vs 파랑 중 싼 것 선택
-        dp[i][0] = r + min(dp[i-1][1], dp[i-1][2])
+        dp[i][0] = r + min(dp[i - 1][1], dp[i - 1][2])
 
         // 현재 집을 초록으로 칠할 경우: 이전 집은 빨강 vs 파랑 중 싼 것 선택
-        dp[i][1] = g + min(dp[i-1][0], dp[i-1][2])
+        dp[i][1] = g + min(dp[i - 1][0], dp[i - 1][2])
 
         // 현재 집을 파랑으로 칠할 경우: 이전 집은 빨강 vs 초록 중 싼 것 선택
-        dp[i][2] = b + min(dp[i-1][0], dp[i-1][1])
+        dp[i][2] = b + min(dp[i - 1][0], dp[i - 1][1])
     }
 
-    println(min(dp[n-1][0], min(dp[n-1][1], dp[n-1][2])))
+    println(min(dp[n - 1][0], min(dp[n - 1][1], dp[n - 1][2])))
 }
