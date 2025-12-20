@@ -204,8 +204,7 @@ fun AnniversaryManagementScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     if (selectedTab == 0) {
-                        val displayDateMillis = calculateNextAnniversaryDate(selectedDateMillis)
-                        val dateString = formatDate(displayDateMillis)
+                        val dateString = formatAnnualDate(selectedDateMillis)
 
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
