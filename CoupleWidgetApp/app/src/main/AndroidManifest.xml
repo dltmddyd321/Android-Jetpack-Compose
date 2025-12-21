@@ -31,6 +31,15 @@
         </activity>
 
         <receiver
+            android:name=".anniversary.AnniversaryNotificationReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.windrr.couplewidgetapp.ACTION_DAILY_NOTIFICATION_CHECK" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
             android:name=".widget.DDayGlanceWidgetReceiver"
             android:exported="true"
             android:label="D-Day">
@@ -49,7 +58,7 @@
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-2156013754929909~6931271244"/>
+            android:value="ca-app-pub-2156013754929909~6931271244" />
     </application>
 
 </manifest>

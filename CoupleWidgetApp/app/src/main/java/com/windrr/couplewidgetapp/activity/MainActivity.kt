@@ -126,6 +126,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import androidx.core.net.toUri
+import com.windrr.couplewidgetapp.anniversary.AnniversaryNotificationReceiver
 
 class MainActivity : ComponentActivity() {
 
@@ -135,6 +136,7 @@ class MainActivity : ComponentActivity() {
             DDayGlanceWidget.updateAllWidgets(applicationContext)
         }
         DDayGlanceWidgetReceiver.scheduleNextMidnightUpdate(applicationContext)
+        AnniversaryNotificationReceiver.scheduleNextMorningNotification(applicationContext)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
