@@ -32,11 +32,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModelProvider
+import com.windrr.couplewidgetapp.R
 import com.windrr.couplewidgetapp.anniversary.AnniversaryIntent
 import com.windrr.couplewidgetapp.anniversary.AnniversaryItem
 import com.windrr.couplewidgetapp.anniversary.AnniversarySideEffect
@@ -455,12 +457,21 @@ fun AnniversaryItemCard(
                     .background(CreamWhite),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    if (item.dateCount > 0) Icons.Rounded.ThumbUp else Icons.Rounded.Star,
-                    contentDescription = null,
-                    tint = LovelyPink,
-                    modifier = Modifier.size(20.dp)
-                )
+                if (item.dateCount > 0) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.outline_calendar_check_24),
+                        contentDescription = null,
+                        tint = LovelyPink,
+                        modifier = Modifier.size(20.dp)
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Rounded.Star,
+                        contentDescription = null,
+                        tint = LovelyPink,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.width(16.dp))
