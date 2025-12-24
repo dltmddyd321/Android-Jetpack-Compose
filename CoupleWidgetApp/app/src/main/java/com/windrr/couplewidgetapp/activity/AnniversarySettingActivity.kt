@@ -369,38 +369,39 @@ fun AnniversaryManagementScreen(
     if (showDatePicker) {
         val datePickerState =
             rememberDatePickerState(initialSelectedDateMillis = selectedDateMillis)
-        MaterialTheme(
-            colorScheme = MaterialTheme.colorScheme.copy(
-                primary = LovelyPink,
-                onPrimary = Color.White,
-                surface = Color.White,
-                onSurface = WarmText
-            )
-        ) {
-            DatePickerDialog(
-                onDismissRequest = { showDatePicker = false },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            selectedDateMillis =
-                                datePickerState.selectedDateMillis ?: System.currentTimeMillis()
-                            showDatePicker = false
-                        }
-                    ) {
-                        Text("확인")
+
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        selectedDateMillis =
+                            datePickerState.selectedDateMillis ?: System.currentTimeMillis()
+                        showDatePicker = false
                     }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showDatePicker = false }) {
-                        Text("취소")
-                    }
-                },
-                colors = DatePickerDefaults.colors(
-                    containerColor = Color.White
-                )
-            ) {
-                DatePicker(state = datePickerState)
+                ) {
+                    Text("확인")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("취소")
+                }
             }
+        ) {
+            DatePicker(
+                state = datePickerState,
+                colors = DatePickerDefaults.colors(
+                    dayContentColor = Color.White,          // 선택되지 않은 날짜 숫자 색상 (검은색)
+                    selectedDayContentColor = Color.White,  // 선택된 날짜 숫자 색상 (흰색)
+                    selectedDayContainerColor = LovelyPink, // 선택된 날짜 동그라미 색상
+                    todayDateBorderColor = LovelyPink,      // 오늘 날짜 테두리
+                    todayContentColor = LovelyPink,         // 오늘 날짜 텍스트
+                    weekdayContentColor = SoftGray,         // 요일(월,화...) 텍스트 색상
+                    yearContentColor = Color.Black,         // 연도 선택 텍스트 색상
+                    currentYearContentColor = LovelyPink    // 현재 연도 텍스트 색상
+                )
+            )
         }
     }
 }

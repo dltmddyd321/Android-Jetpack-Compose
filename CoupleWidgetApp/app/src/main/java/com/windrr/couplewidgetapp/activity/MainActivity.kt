@@ -202,15 +202,20 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 // Android 13+ 알림 권한 체크
-                val isNotificationGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
-                } else {
-                    true
-                }
+                val isNotificationGranted =
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        checkSelfPermission(
+                            context,
+                            Manifest.permission.POST_NOTIFICATIONS
+                        ) == PackageManager.PERMISSION_GRANTED
+                    } else {
+                        true
+                    }
 
                 // Android 12+ 정확한 알람 권한 체크
                 val isExactAlarmGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                    val alarmManager =
+                        context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
                     alarmManager.canScheduleExactAlarms()
                 } else {
                     true
@@ -327,12 +332,14 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                     ActivityResultContracts.RequestPermission()
                 ) { isGranted ->
                     if (isGranted) {
-                        val isExactAlarmGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                            alarmManager.canScheduleExactAlarms()
-                        } else {
-                            true
-                        }
+                        val isExactAlarmGranted =
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                val alarmManager =
+                                    context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                                alarmManager.canScheduleExactAlarms()
+                            } else {
+                                true
+                            }
 
                         if (isExactAlarmGranted) {
                             showPermissionDialog = false
@@ -344,7 +351,11 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                     onDismissRequest = { /* 강제성이 필요하므로 배경 클릭으로 닫기 방지 */ },
                     containerColor = Color.White,
                     icon = {
-                        Icon(Icons.Rounded.Notifications, contentDescription = null, tint = Color(0xFFFF9800))
+                        Icon(
+                            Icons.Rounded.Notifications,
+                            contentDescription = null,
+                            tint = Color(0xFFFF9800)
+                        )
                     },
                     title = {
                         Text(
@@ -366,26 +377,31 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                         Button(
                             onClick = {
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                                    checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+                                    checkSelfPermission(
+                                        context,
+                                        Manifest.permission.POST_NOTIFICATIONS
+                                    ) != PackageManager.PERMISSION_GRANTED
                                 ) {
                                     permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
                                 } else {
-                                    val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                                        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                                        if (!alarmManager.canScheduleExactAlarms()) {
-                                            Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
-                                                data = "package:${context.packageName}".toUri()
+                                    val intent =
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                                            val alarmManager =
+                                                context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                                            if (!alarmManager.canScheduleExactAlarms()) {
+                                                Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                                                    data = "package:${context.packageName}".toUri()
+                                                }
+                                            } else {
+                                                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                                    data = "package:${context.packageName}".toUri()
+                                                }
                                             }
                                         } else {
                                             Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                                                 data = "package:${context.packageName}".toUri()
                                             }
                                         }
-                                    } else {
-                                        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                            data = "package:${context.packageName}".toUri()
-                                        }
-                                    }
                                     context.startActivity(intent)
                                 }
                             },
@@ -585,20 +601,25 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                                 DDayGlanceWidget.updateAllWidgets(context)
                             }
                         }
-                    ) {
-                        Text("확인")
-                    }
+                    ) { Text("확인") }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showDatePicker = false }) {
-                        Text("취소")
-                    }
-                },
-                colors = DatePickerDefaults.colors(
-                    containerColor = Color.White
-                )
+                    TextButton(onClick = { showDatePicker = false }) { Text("취소") }
+                }
             ) {
-                DatePicker(state = datePickerState)
+                DatePicker(
+                    state = datePickerState,
+                    colors = DatePickerDefaults.colors(
+                        dayContentColor = Color.White,          // 선택되지 않은 날짜 숫자 색상 (검은색)
+                        selectedDayContentColor = Color.White,  // 선택된 날짜 숫자 색상 (흰색)
+                        selectedDayContainerColor = LovelyPink, // 선택된 날짜 동그라미 색상
+                        todayDateBorderColor = LovelyPink,      // 오늘 날짜 테두리
+                        todayContentColor = LovelyPink,         // 오늘 날짜 텍스트
+                        weekdayContentColor = SoftGray,         // 요일(월,화...) 텍스트 색상
+                        yearContentColor = Color.Black,         // 연도 선택 텍스트 색상
+                        currentYearContentColor = LovelyPink    // 현재 연도 텍스트 색상
+                    )
+                )
             }
         }
     }
