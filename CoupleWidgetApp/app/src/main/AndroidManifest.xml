@@ -15,6 +15,11 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CoupleWidgetApp">
         <activity
+            android:name=".activity.WidgetSettingActivity"
+            android:exported="false"
+            android:label="@string/title_activity_widget_setting"
+            android:theme="@style/Theme.CoupleWidgetApp" />
+        <activity
             android:name=".activity.AnniversarySettingActivity"
             android:exported="false"
             android:label="@string/title_activity_anniversary_setting"
@@ -38,7 +43,6 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-
         <receiver
             android:name=".widget.DDayGlanceWidgetReceiver"
             android:exported="true"

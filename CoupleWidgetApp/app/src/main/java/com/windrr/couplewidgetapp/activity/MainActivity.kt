@@ -5,7 +5,6 @@ import android.app.AlarmManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -58,6 +57,7 @@ import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -97,14 +97,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.checkSelfPermission
+import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.ads.MobileAds
 import com.windrr.couplewidgetapp.R
+import com.windrr.couplewidgetapp.anniversary.AnniversaryNotificationReceiver
 import com.windrr.couplewidgetapp.dday.getStartDateFlow
 import com.windrr.couplewidgetapp.dday.getStartTitle
 import com.windrr.couplewidgetapp.dday.saveStartDate
@@ -125,8 +126,6 @@ import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import androidx.core.net.toUri
-import com.windrr.couplewidgetapp.anniversary.AnniversaryNotificationReceiver
 
 class MainActivity : ComponentActivity() {
 
@@ -271,8 +270,7 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
 
         IconButton(
             onClick = {
-                val intent = Intent(context, AnniversarySettingActivity::class.java)
-                intent.putExtra("BASE_DATE", savedDateMillis ?: System.currentTimeMillis())
+                val intent = Intent(context, WidgetSettingActivity::class.java)
                 context.startActivity(intent)
             },
             modifier = Modifier
@@ -577,6 +575,27 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
 
             ExactAlarmPermissionCheck(modifier = Modifier.fillMaxWidth())
         }
+
+        ExtendedFloatingActionButton(
+            onClick = {
+                val intent = Intent(context, AnniversarySettingActivity::class.java)
+                intent.putExtra("BASE_DATE", savedDateMillis ?: System.currentTimeMillis())
+                context.startActivity(intent)
+            },
+            icon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.outline_calendar_check_24),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                )
+            },
+            text = { Text("기념일", fontWeight = FontWeight.Bold) },
+            containerColor = LovelyPink,
+            contentColor = Color.White,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(24.dp)
+        )
     }
 
     if (showDatePicker) {

@@ -41,4 +41,5 @@
     <string name="change_top_text_placeholder">예) 우리가 사랑한 지</string>
     <string name="the_beginning">The Beginning</string>
     <string name="confirm">확인</string>
+    <string name="title_activity_widget_setting">WidgetSettingActivity</string>
 </resources>

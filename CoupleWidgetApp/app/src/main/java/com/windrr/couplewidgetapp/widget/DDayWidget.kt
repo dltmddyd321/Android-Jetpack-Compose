@@ -6,6 +6,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.glance.ColorFilter
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
@@ -14,7 +16,6 @@ import androidx.glance.ImageProvider
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.provideContent
-import androidx.glance.appwidget.updateAll
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
@@ -28,11 +29,10 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.windrr.couplewidgetapp.R
+import com.windrr.couplewidgetapp.dday.dataStore
 import com.windrr.couplewidgetapp.dday.getStartDateFlow
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.map
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -46,6 +46,15 @@ class DDayGlanceWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val startDateMillis = getStartDateFlow(context).first()
 
+        val WIDGET_COLOR_KEY = intPreferencesKey("widget_color")
+        val savedColorInt = context.dataStore.data
+            .map { preferences ->
+                preferences[WIDGET_COLOR_KEY] ?: android.graphics.Color.WHITE
+            }
+            .first()
+
+        val widgetColor = Color(savedColorInt)
+
         val dDayString = if (startDateMillis != null) {
             val dDayCount = calculateDDay(startDateMillis)
             "$dDayCount"
@@ -55,13 +64,13 @@ class DDayGlanceWidget : GlanceAppWidget() {
 
         provideContent {
             GlanceTheme {
-                DDayWidgetContent(dDayString = dDayString)
+                DDayWidgetContent(dDayString = dDayString, textColor = widgetColor)
             }
         }
     }
 
     @Composable
-    private fun DDayWidgetContent(dDayString: String) {
+    private fun DDayWidgetContent(dDayString: String, textColor: Color) {
         Column(
             modifier = GlanceModifier
                 .fillMaxSize()
@@ -72,13 +81,14 @@ class DDayGlanceWidget : GlanceAppWidget() {
             Image(
                 provider = ImageProvider(R.drawable.heart),
                 contentDescription = "Heart Icon",
-                modifier = GlanceModifier.size(16.dp)
+                modifier = GlanceModifier.size(16.dp),
+                colorFilter = ColorFilter.tint(ColorProvider(textColor))
             )
             Spacer(modifier = GlanceModifier.height(4.dp))
             Text(
                 text = dDayString,
                 style = TextStyle(
-                    color = ColorProvider(Color.White),
+                    color = ColorProvider(textColor),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Normal,
                 )
