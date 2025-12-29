@@ -100,7 +100,7 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
             preferences[WIDGET_COLOR_KEY] ?: android.graphics.Color.WHITE
         }
         .collectAsState(initial = android.graphics.Color.WHITE)
-    val currentColor = Color(savedColorInt)
+    var selectedColor by remember { mutableStateOf(Color(savedColorInt)) }
     var showColorPicker by remember { mutableStateOf(false) }
 
     Box(
@@ -159,7 +159,7 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                             modifier = Modifier
                                 .size(32.dp)
                                 .clip(CircleShape)
-                                .background(currentColor)
+                                .background(selectedColor)
                                 .border(1.dp, Color.LightGray, CircleShape)
                         )
                     }
@@ -170,7 +170,7 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
 
     if (showColorPicker) {
         val controller = rememberColorPickerController()
-        var selectedColor by remember { mutableStateOf(currentColor) }
+
 
         Dialog(onDismissRequest = { showColorPicker = false }) {
             Card(
@@ -199,7 +199,7 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                             .fillMaxWidth()
                             .height(250.dp),
                         controller = controller,
-                        initialColor = currentColor,
+                        initialColor = selectedColor,
                         onColorChanged = { colorEnvelope: ColorEnvelope ->
                             selectedColor = colorEnvelope.color
                         }
@@ -207,7 +207,6 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // 명도 슬라이더 (밝기 조절)
                     BrightnessSlider(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -245,8 +244,7 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                                         context.dataStore.edit { settings ->
                                             settings[WIDGET_COLOR_KEY] = selectedColor.toArgb()
                                         }
-                                        DDayGlanceWidget.updateAllWidgets(context)
-
+                                        DDayGlanceWidget.updateAllWidgets(context.applicationContext)
                                         Toast.makeText(
                                             context,
                                             "위젯 색상이 변경되었습니다.",
