@@ -5,6 +5,9 @@ import android.app.AlarmManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import androidx.exifinterface.media.ExifInterface
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -85,6 +88,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -106,6 +111,7 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.ads.MobileAds
 import com.windrr.couplewidgetapp.R
 import com.windrr.couplewidgetapp.anniversary.AnniversaryNotificationReceiver
+import com.windrr.couplewidgetapp.dday.dataStore
 import com.windrr.couplewidgetapp.dday.getStartDateFlow
 import com.windrr.couplewidgetapp.dday.getStartTitle
 import com.windrr.couplewidgetapp.dday.saveStartDate
@@ -118,7 +124,10 @@ import com.windrr.couplewidgetapp.ui.theme.SoftPeach
 import com.windrr.couplewidgetapp.ui.theme.WarmText
 import com.windrr.couplewidgetapp.widget.DDayGlanceWidget
 import com.windrr.couplewidgetapp.widget.DDayGlanceWidgetReceiver
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.ZoneId
@@ -153,15 +162,91 @@ class MainActivity : ComponentActivity() {
         )
         setContent {
             CoupleWidgetAppTheme {
+
+                val context = LocalContext.current
+
+                val bgUriString by context.dataStore.data
+                    .map { preferences -> preferences[BACKGROUND_IMAGE_URI_KEY] ?: "" }
+                    .collectAsState(initial = "")
+
+                var bgBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
+
+                LaunchedEffect(bgUriString) {
+                    if (bgUriString.isNotEmpty()) {
+                        withContext(Dispatchers.IO) {
+                            try {
+                                val uri = bgUriString.toUri()
+                                var rotation = 0f
+                                context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                                    val exif = ExifInterface(inputStream)
+                                    val orientation = exif.getAttributeInt(
+                                        ExifInterface.TAG_ORIENTATION,
+                                        ExifInterface.ORIENTATION_NORMAL
+                                    )
+                                    rotation = when (orientation) {
+                                        ExifInterface.ORIENTATION_ROTATE_90 -> 90f
+                                        ExifInterface.ORIENTATION_ROTATE_180 -> 180f
+                                        ExifInterface.ORIENTATION_ROTATE_270 -> 270f
+                                        else -> 0f
+                                    }
+                                }
+
+                                context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                                    val originalBitmap = BitmapFactory.decodeStream(inputStream)
+                                    if (originalBitmap != null) {
+                                        bgBitmap = if (rotation != 0f) {
+                                            val matrix = Matrix().apply { postRotate(rotation) }
+                                            val rotatedBitmap = android.graphics.Bitmap.createBitmap(
+                                                originalBitmap, 0, 0,
+                                                originalBitmap.width, originalBitmap.height,
+                                                matrix, true
+                                            )
+                                            if (rotatedBitmap != originalBitmap) {
+                                                originalBitmap.recycle()
+                                            }
+                                            rotatedBitmap.asImageBitmap()
+                                        } else {
+                                            originalBitmap.asImageBitmap()
+                                        }
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                bgBitmap = null
+                            }
+                        }
+                    } else {
+                        bgBitmap = null
+                    }
+                }
+
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(CreamWhite, SoftPeach.copy(alpha = 0.3f))
-                            )
-                        )
+                    modifier = Modifier.fillMaxSize()
                 ) {
+                    if (bgBitmap != null) {
+                        Image(
+                            bitmap = bgBitmap!!,
+                            contentDescription = "Background Image",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Black.copy(alpha = 0.2f))
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(
+                                    brush = Brush.verticalGradient(
+                                        colors = listOf(CreamWhite, SoftPeach.copy(alpha = 0.3f))
+                                    )
+                                )
+                        )
+                    }
+
                     Scaffold(
                         containerColor = Color.Transparent,
                         modifier = Modifier.fillMaxSize()

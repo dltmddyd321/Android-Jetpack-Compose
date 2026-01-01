@@ -45,6 +45,7 @@ dependencies {
     implementation("com.google.android.gms:play-services-ads:23.0.0")
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    implementation(libs.androidx.exifinterface)
     kapt(libs.androidx.room.compiler)
     implementation("androidx.datastore:datastore-preferences:1.2.0")
     implementation(libs.androidx.core.ktx)
