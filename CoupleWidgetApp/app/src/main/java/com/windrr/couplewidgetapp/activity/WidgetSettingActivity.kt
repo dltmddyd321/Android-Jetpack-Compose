@@ -2,6 +2,10 @@ package com.windrr.couplewidgetapp.activity
 
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import androidx.exifinterface.media.ExifInterface
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -353,9 +357,7 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
 fun UriImagePreview(uriString: String) {
     val context = LocalContext.current
     var bitmap by remember(uriString) {
-        mutableStateOf<androidx.compose.ui.graphics.ImageBitmap?>(
-            null
-        )
+        mutableStateOf<androidx.compose.ui.graphics.ImageBitmap?>(null)
     }
 
     LaunchedEffect(uriString) {
@@ -363,12 +365,43 @@ fun UriImagePreview(uriString: String) {
             withContext(Dispatchers.IO) {
                 try {
                     val uri = uriString.toUri()
+                    var rotation = 0f
                     context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                        val androidBitmap = BitmapFactory.decodeStream(inputStream)
-                        bitmap = androidBitmap?.asImageBitmap()
+                        val exif = ExifInterface(inputStream)
+                        val orientation = exif.getAttributeInt(
+                            ExifInterface.TAG_ORIENTATION,
+                            ExifInterface.ORIENTATION_NORMAL
+                        )
+                        rotation = when (orientation) {
+                            ExifInterface.ORIENTATION_ROTATE_90 -> 90f
+                            ExifInterface.ORIENTATION_ROTATE_180 -> 180f
+                            ExifInterface.ORIENTATION_ROTATE_270 -> 270f
+                            else -> 0f
+                        }
+                    }
+                    
+                    context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                        val originalBitmap = BitmapFactory.decodeStream(inputStream)
+                        if (originalBitmap != null) {
+                            bitmap = if (rotation != 0f) {
+                                val matrix = Matrix().apply { postRotate(rotation) }
+                                val rotatedBitmap = android.graphics.Bitmap.createBitmap(
+                                    originalBitmap, 0, 0,
+                                    originalBitmap.width, originalBitmap.height,
+                                    matrix, true
+                                )
+                                if (rotatedBitmap != originalBitmap) {
+                                    originalBitmap.recycle()
+                                }
+                                rotatedBitmap.asImageBitmap()
+                            } else {
+                                originalBitmap.asImageBitmap()
+                            }
+                        }
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
+                    bitmap = null
                 }
             }
         }
