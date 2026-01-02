@@ -277,6 +277,11 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
     var showGuideDialog by remember { mutableStateOf(false) }
     var showPermissionDialog by remember { mutableStateOf(false) }
 
+    val bgUriString by context.dataStore.data
+        .map { preferences -> preferences[BACKGROUND_IMAGE_URI_KEY] ?: "" }
+        .collectAsState(initial = "")
+    val hasBackgroundImage = bgUriString.isNotEmpty()
+
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = savedDateMillis ?: System.currentTimeMillis(),
         initialDisplayMode = DisplayMode.Picker
@@ -389,26 +394,127 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
             )
             Spacer(modifier = Modifier.height(24.dp))
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
+            Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))
                     .clickable { showTitleDialog = true }
+                    .then(
+                        if (hasBackgroundImage) {
+                            Modifier.background(Color.White.copy(alpha = 0.7f))
+                        } else {
+                            Modifier
+                        }
+                    )
                     .padding(horizontal = 12.dp, vertical = 6.dp)
             ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = storedTitle,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = SoftGray
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Icon(
+                        imageVector = Icons.Rounded.Edit,
+                        contentDescription = "Edit Title",
+                        tint = SoftGray.copy(alpha = 0.6f),
+                        modifier = Modifier.size(14.dp)
+                    )
+                }
+            }
+
+            val dDayText = remember(savedDateMillis) {
+                if (savedDateMillis != null) {
+                    val days = calculateDDay(savedDateMillis!!)
+                    if (days > 0) "+ $days 일" else "D${days - 1}"
+                } else {
+                    "The Beginning"
+                }
+            }
+
+            Box(
+                modifier = Modifier
+                    .padding(vertical = 8.dp)
+                    .then(
+                        if (hasBackgroundImage) {
+                            Modifier
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(Color.White.copy(alpha = 0.7f))
+                                .padding(horizontal = 20.dp, vertical = 8.dp)
+                        } else {
+                            Modifier
+                        }
+                    )
+            ) {
                 Text(
-                    text = storedTitle,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = SoftGray
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Icon(
-                    imageVector = Icons.Rounded.Edit,
-                    contentDescription = "Edit Title",
-                    tint = SoftGray.copy(alpha = 0.6f),
-                    modifier = Modifier.size(14.dp)
+                    text = buildAnnotatedString {
+                        if (savedDateMillis != null) { withStyle(style = SpanStyle(color = LovelyPink)) { append("❤ ") } }
+                        append(dDayText)
+                    },
+                    style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold, letterSpacing = 1.sp),
+                    color = WarmText
                 )
             }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Card(
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                shape = RoundedCornerShape(24.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier.padding(32.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    val dateText = if (savedDateMillis != null) {
+                        formatMillisToDate(savedDateMillis)
+                    } else {
+                        "날짜를 선택해주세요"
+                    }
+
+                    Text(
+                        text = "Start Date",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = LovelyPink
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = dateText,
+                        style = MaterialTheme.typography.headlineMedium.copy(
+                            fontWeight = FontWeight.Medium
+                        ),
+                        color = WarmText,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    Button(
+                        onClick = { showDatePicker = true },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = LovelyPink,
+                            contentColor = Color.White
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.DateRange,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = "날짜 변경하기", fontWeight = FontWeight.Bold)
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            ExactAlarmPermissionCheck(modifier = Modifier.fillMaxWidth())
 
             if (showPermissionDialog) {
                 val permissionLauncher = rememberLauncherForActivityResult(
@@ -574,91 +680,6 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                     shape = RoundedCornerShape(20.dp)
                 )
             }
-
-            val dDayText = remember(savedDateMillis) {
-                if (savedDateMillis != null) {
-                    val days = calculateDDay(savedDateMillis!!)
-                    if (days > 0) "+ $days 일" else "D${days - 1}"
-                } else {
-                    "The Beginning"
-                }
-            }
-
-            Text(
-                text = buildAnnotatedString {
-                    if (savedDateMillis != null) {
-                        withStyle(style = SpanStyle(color = LovelyPink)) {
-                            append("❤ ")
-                        }
-                    }
-                    append(dDayText)
-                },
-                style = MaterialTheme.typography.headlineLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.sp
-                ),
-                color = WarmText
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            Card(
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                shape = RoundedCornerShape(24.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(
-                    modifier = Modifier.padding(32.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    val dateText = if (savedDateMillis != null) {
-                        formatMillisToDate(savedDateMillis)
-                    } else {
-                        "날짜를 선택해주세요"
-                    }
-
-                    Text(
-                        text = "Start Date",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = LovelyPink
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        text = dateText,
-                        style = MaterialTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.Medium
-                        ),
-                        color = WarmText,
-                        textAlign = TextAlign.Center
-                    )
-
-                    Spacer(modifier = Modifier.height(24.dp))
-
-                    Button(
-                        onClick = { showDatePicker = true },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = LovelyPink,
-                            contentColor = Color.White
-                        ),
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Icon(
-                            imageVector = Icons.Rounded.DateRange,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = "날짜 변경하기", fontWeight = FontWeight.Bold)
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            ExactAlarmPermissionCheck(modifier = Modifier.fillMaxWidth())
         }
 
         ExtendedFloatingActionButton(
