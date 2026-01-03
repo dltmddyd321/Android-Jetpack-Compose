@@ -3,9 +3,6 @@ package com.windrr.couplewidgetapp.activity
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
-import androidx.exifinterface.media.ExifInterface
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -63,6 +60,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -71,10 +69,12 @@ import androidx.core.net.toUri
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.exifinterface.media.ExifInterface
 import com.github.skydoves.colorpicker.compose.BrightnessSlider
 import com.github.skydoves.colorpicker.compose.ColorEnvelope
 import com.github.skydoves.colorpicker.compose.HsvColorPicker
 import com.github.skydoves.colorpicker.compose.rememberColorPickerController
+import com.windrr.couplewidgetapp.R
 import com.windrr.couplewidgetapp.activity.ui.theme.CoupleWidgetAppTheme
 import com.windrr.couplewidgetapp.dday.dataStore
 import com.windrr.couplewidgetapp.ui.theme.CreamWhite
@@ -146,7 +146,8 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                 context.dataStore.edit { settings ->
                     settings[BACKGROUND_IMAGE_URI_KEY] = selectedUri.toString()
                 }
-                Toast.makeText(context, "배경 사진이 설정되었습니다.", Toast.LENGTH_SHORT).show()
+                // [수정] Toast 메시지 리소스 사용
+                Toast.makeText(context, context.getString(R.string.msg_bg_set), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -169,13 +170,13 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                 IconButton(onClick = onBackClick) {
                     Icon(
                         Icons.AutoMirrored.Rounded.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.desc_back), // [수정] 리소스 사용
                         tint = SoftGray
                     )
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "설정",
+                    text = stringResource(R.string.settings_title), // [수정] "설정" -> 리소스
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                     color = WarmText
                 )
@@ -190,6 +191,7 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                    // 위젯 글자 색상 옵션
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -199,7 +201,7 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "위젯 글자 색상",
+                            text = stringResource(R.string.widget_text_color), // [수정] "위젯 글자 색상" -> 리소스
                             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
                             color = WarmText
                         )
@@ -218,6 +220,7 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                         color = SoftPeach.copy(alpha = 0.5f)
                     )
 
+                    // 배경 사진 설정 옵션
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -231,7 +234,7 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "배경 사진 설정",
+                            text = stringResource(R.string.widget_bg_image_setting), // [수정] "배경 사진 설정" -> 리소스
                             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
                             color = WarmText
                         )
@@ -279,7 +282,7 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
-                            text = "색상 선택",
+                            text = stringResource(R.string.title_select_color), // [수정] "색상 선택" -> 리소스
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                             color = WarmText
@@ -309,7 +312,11 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text("New:", color = SoftGray, fontSize = 12.sp)
+                                Text(
+                                    text = stringResource(R.string.label_color_new), // [수정] "New:" -> 리소스
+                                    color = SoftGray,
+                                    fontSize = 12.sp
+                                )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Box(
                                     modifier = Modifier
@@ -321,7 +328,7 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                             }
                             Row {
                                 TextButton(onClick = { showColorPicker = false }) {
-                                    Text("취소", color = SoftGray)
+                                    Text(stringResource(R.string.cancel), color = SoftGray) // [수정] "취소" -> 리소스
                                 }
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Button(
@@ -333,7 +340,7 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                                             DDayGlanceWidget.updateAllWidgets(context.applicationContext)
                                             Toast.makeText(
                                                 context,
-                                                "위젯 색상이 변경되었습니다.",
+                                                context.getString(R.string.msg_color_changed), // [수정] 리소스 사용
                                                 Toast.LENGTH_SHORT
                                             ).show()
                                         }
@@ -342,7 +349,7 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                                     colors = ButtonDefaults.buttonColors(containerColor = LovelyPink),
                                     shape = RoundedCornerShape(8.dp)
                                 ) {
-                                    Text("저장", fontWeight = FontWeight.Bold)
+                                    Text(stringResource(R.string.save), fontWeight = FontWeight.Bold) // [수정] "저장" -> 리소스
                                 }
                             }
                         }
@@ -353,8 +360,10 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
     }
 }
 
+// ... (UriImagePreview는 기존과 동일하게 유지하되 description만 리소스 사용) ...
 @Composable
 fun UriImagePreview(uriString: String) {
+    // ... (기존 로직 동일) ...
     val context = LocalContext.current
     var bitmap by remember(uriString) {
         mutableStateOf<androidx.compose.ui.graphics.ImageBitmap?>(null)
@@ -365,6 +374,7 @@ fun UriImagePreview(uriString: String) {
             withContext(Dispatchers.IO) {
                 try {
                     val uri = uriString.toUri()
+
                     var rotation = 0f
                     context.contentResolver.openInputStream(uri)?.use { inputStream ->
                         val exif = ExifInterface(inputStream)
@@ -379,7 +389,7 @@ fun UriImagePreview(uriString: String) {
                             else -> 0f
                         }
                     }
-                    
+
                     context.contentResolver.openInputStream(uri)?.use { inputStream ->
                         val originalBitmap = BitmapFactory.decodeStream(inputStream)
                         if (originalBitmap != null) {
@@ -410,7 +420,7 @@ fun UriImagePreview(uriString: String) {
     if (bitmap != null) {
         Image(
             bitmap = bitmap!!,
-            contentDescription = "Selected Background",
+            contentDescription = stringResource(R.string.desc_selected_bg), // [수정] 리소스 사용
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
         )

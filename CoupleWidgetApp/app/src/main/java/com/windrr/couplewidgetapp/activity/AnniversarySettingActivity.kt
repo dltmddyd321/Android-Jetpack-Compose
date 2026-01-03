@@ -1,22 +1,28 @@
 package com.windrr.couplewidgetapp.activity
 
+import android.content.Context
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import android.widget.Toast
-import androidx.activity.SystemBarStyle
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -24,15 +30,45 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material.icons.rounded.ThumbUp
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDefaults
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberSwipeToDismissBoxState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -45,17 +81,16 @@ import com.windrr.couplewidgetapp.anniversary.AnniversarySideEffect
 import com.windrr.couplewidgetapp.anniversary.AnniversaryViewModel
 import com.windrr.couplewidgetapp.anniversary.AnniversaryViewModelFactory
 import com.windrr.couplewidgetapp.anniversary.AppDatabase
-import java.text.SimpleDateFormat
-import java.util.*
 import com.windrr.couplewidgetapp.ui.theme.CoupleWidgetAppTheme
 import com.windrr.couplewidgetapp.ui.theme.CreamWhite
 import com.windrr.couplewidgetapp.ui.theme.LovelyPink
 import com.windrr.couplewidgetapp.ui.theme.SoftGray
 import com.windrr.couplewidgetapp.ui.theme.SoftPeach
 import com.windrr.couplewidgetapp.ui.theme.WarmText
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import kotlin.math.min
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class AnniversarySettingActivity : ComponentActivity() {
 
@@ -152,13 +187,13 @@ fun AnniversaryManagementScreen(
                 IconButton(onClick = onBackClick) {
                     Icon(
                         Icons.AutoMirrored.Rounded.ArrowBack,
-                        contentDescription = "Back",
+                        contentDescription = stringResource(R.string.desc_back), // 리소스 적용
                         tint = SoftGray
                     )
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "기념일 추가하기",
+                    text = stringResource(R.string.title_add_anniversary), // "기념일 추가하기"
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                     color = WarmText
                 )
@@ -179,8 +214,8 @@ fun AnniversaryManagementScreen(
                             .background(Color(0xFFF5F5F5), RoundedCornerShape(12.dp))
                             .padding(4.dp)
                     ) {
-                        TabButton(text = "날짜 선택", isSelected = selectedTab == 0) { selectedTab = 0 }
-                        TabButton(text = "D-Day 입력", isSelected = selectedTab == 1) {
+                        TabButton(text = stringResource(R.string.tab_select_date), isSelected = selectedTab == 0) { selectedTab = 0 }
+                        TabButton(text = stringResource(R.string.tab_input_dday), isSelected = selectedTab == 1) {
                             selectedTab = 1
                         }
                     }
@@ -190,7 +225,7 @@ fun AnniversaryManagementScreen(
                     OutlinedTextField(
                         value = titleInput,
                         onValueChange = { titleInput = it },
-                        label = { Text("기념일 이름") },
+                        label = { Text(stringResource(R.string.label_anniversary_name)) }, // "기념일 이름"
                         singleLine = true,
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -206,7 +241,8 @@ fun AnniversaryManagementScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     if (selectedTab == 0) {
-                        val dateString = formatAnnualDate(selectedDateMillis)
+                        // [수정] 날짜 포맷팅에 Context 전달
+                        val dateString = formatAnnualDate(context, selectedDateMillis)
 
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -225,7 +261,7 @@ fun AnniversaryManagementScreen(
                             )
                         }
                         Text(
-                            text = "매년 반복되는 기념일로 저장됩니다.",
+                            text = stringResource(R.string.msg_annual_repeat_desc), // "매년 반복되는..."
                             style = MaterialTheme.typography.labelSmall,
                             color = SoftGray,
                             modifier = Modifier.padding(top = 4.dp, start = 4.dp)
@@ -236,8 +272,8 @@ fun AnniversaryManagementScreen(
                             onValueChange = {
                                 if (it.all { char -> char.isDigit() }) numberInput = it
                             },
-                            label = { Text("며칠째 되는 날인가요?") },
-                            trailingIcon = { Text("일  ", color = SoftGray) },
+                            label = { Text(stringResource(R.string.label_how_many_days)) }, // "며칠째 되는..."
+                            trailingIcon = { Text(stringResource(R.string.suffix_day_unit), color = SoftGray) }, // "일 "
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             singleLine = true,
                             shape = RoundedCornerShape(12.dp),
@@ -282,7 +318,7 @@ fun AnniversaryManagementScreen(
                             .fillMaxWidth()
                             .height(50.dp)
                     ) {
-                        Text("등록하기", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text(stringResource(R.string.btn_register), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                     }
                 }
             }
@@ -295,7 +331,7 @@ fun AnniversaryManagementScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "다가오는 기념일",
+                    text = stringResource(R.string.header_upcoming), // "다가오는 기념일"
                     style = MaterialTheme.typography.titleMedium,
                     color = SoftGray,
                     modifier = Modifier.padding(start = 4.dp)
@@ -350,7 +386,7 @@ fun AnniversaryManagementScreen(
                                 if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart) {
                                     Icon(
                                         imageVector = Icons.Rounded.Delete,
-                                        contentDescription = "Delete",
+                                        contentDescription = stringResource(R.string.desc_delete_icon),
                                         tint = Color.White
                                     )
                                 }
@@ -370,38 +406,50 @@ fun AnniversaryManagementScreen(
         val datePickerState =
             rememberDatePickerState(initialSelectedDateMillis = selectedDateMillis)
 
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        selectedDateMillis =
-                            datePickerState.selectedDateMillis ?: System.currentTimeMillis()
-                        showDatePicker = false
-                    }
-                ) {
-                    Text("확인")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) {
-                    Text("취소")
-                }
-            }
-        ) {
-            DatePicker(
-                state = datePickerState,
-                colors = DatePickerDefaults.colors(
-                    dayContentColor = Color.White,          // 선택되지 않은 날짜 숫자 색상 (검은색)
-                    selectedDayContentColor = Color.White,  // 선택된 날짜 숫자 색상 (흰색)
-                    selectedDayContainerColor = LovelyPink, // 선택된 날짜 동그라미 색상
-                    todayDateBorderColor = LovelyPink,      // 오늘 날짜 테두리
-                    todayContentColor = LovelyPink,         // 오늘 날짜 텍스트
-                    weekdayContentColor = SoftGray,         // 요일(월,화...) 텍스트 색상
-                    yearContentColor = Color.Black,         // 연도 선택 텍스트 색상
-                    currentYearContentColor = LovelyPink    // 현재 연도 텍스트 색상
-                )
+        MaterialTheme(
+            colorScheme = MaterialTheme.colorScheme.copy(
+                primary = LovelyPink,
+                onPrimary = Color.White,
+                surface = Color.White,
+                onSurface = Color.Black // 날짜 텍스트 가독성 (검은색)
             )
+        ) {
+            DatePickerDialog(
+                onDismissRequest = { showDatePicker = false },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            selectedDateMillis =
+                                datePickerState.selectedDateMillis ?: System.currentTimeMillis()
+                            showDatePicker = false
+                        }
+                    ) {
+                        Text(stringResource(R.string.confirm), fontWeight = FontWeight.Bold)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { showDatePicker = false }) {
+                        Text(stringResource(R.string.cancel), color = SoftGray)
+                    }
+                },
+                colors = DatePickerDefaults.colors(
+                    containerColor = Color.White
+                )
+            ) {
+                DatePicker(
+                    state = datePickerState,
+                    colors = DatePickerDefaults.colors(
+                        dayContentColor = Color.Black,
+                        selectedDayContentColor = Color.White,
+                        selectedDayContainerColor = LovelyPink,
+                        todayDateBorderColor = LovelyPink,
+                        todayContentColor = LovelyPink,
+                        weekdayContentColor = SoftGray,
+                        yearContentColor = Color.Black,
+                        currentYearContentColor = LovelyPink
+                    )
+                )
+            }
         }
     }
 }
@@ -429,10 +477,13 @@ fun RowScope.TabButton(text: String, isSelected: Boolean, onClick: () -> Unit) {
 fun AnniversaryItemCard(
     item: AnniversaryItem
 ) {
+    val context = LocalContext.current
+
+    // [수정] 날짜 포맷팅에 Context 전달 (리소스 사용)
     val displayDateText = if (item.dateCount == 0) {
-        formatAnnualDate(item.dateMillis)
+        formatAnnualDate(context, item.dateMillis)
     } else {
-        formatDate(item.dateMillis)
+        formatDate(context, item.dateMillis)
     }
 
     val targetMillisForDDay = if (item.dateCount == 0) {
@@ -458,21 +509,12 @@ fun AnniversaryItemCard(
                     .background(CreamWhite),
                 contentAlignment = Alignment.Center
             ) {
-                if (item.dateCount > 0) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.outline_calendar_check_24),
-                        contentDescription = null,
-                        tint = LovelyPink,
-                        modifier = Modifier.size(20.dp)
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Rounded.Star,
-                        contentDescription = null,
-                        tint = LovelyPink,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
+                Icon(
+                    if (item.dateCount > 0) Icons.Rounded.ThumbUp else Icons.Rounded.Star,
+                    contentDescription = null,
+                    tint = LovelyPink,
+                    modifier = Modifier.size(20.dp)
+                )
             }
 
             Spacer(modifier = Modifier.width(16.dp))
@@ -484,7 +526,6 @@ fun AnniversaryItemCard(
                     fontWeight = FontWeight.Bold,
                     color = WarmText
                 )
-                // [수정] 위에서 계산한 포맷팅된 날짜 텍스트 사용
                 Text(
                     text = displayDateText,
                     style = MaterialTheme.typography.bodyMedium,
@@ -492,11 +533,12 @@ fun AnniversaryItemCard(
                 )
             }
 
+            // [수정] D-Day 문자열 리소스 사용
             val dDay = getDDayCount(targetMillisForDDay)
             val dDayString = when {
-                dDay == 0L -> "Today"
-                dDay > 0 -> "D-${dDay}"
-                else -> "D+${-dDay}"
+                dDay == 0L -> stringResource(R.string.d_day_today)
+                dDay > 0 -> stringResource(R.string.d_day_d_minus_format, dDay)
+                else -> stringResource(R.string.d_day_d_plus_format, -dDay)
             }
 
             Text(
@@ -509,20 +551,25 @@ fun AnniversaryItemCard(
     }
 }
 
-fun formatAnnualDate(millis: Long): String {
-    val formatter = SimpleDateFormat("M월 d일", Locale.KOREA)
-    return "매년 " + formatter.format(Date(millis))
-}
-
 fun calculateDateFromBase(baseMillis: Long, days: Long): Long {
     val calendar = Calendar.getInstance().apply { timeInMillis = baseMillis }
     calendar.add(Calendar.DAY_OF_YEAR, (days - 1).toInt())
     return calendar.timeInMillis
 }
 
-fun formatDate(millis: Long): String {
-    val formatter = SimpleDateFormat("yyyy년 MM월 dd일 (E)", Locale.KOREA)
+// [수정] Context를 받아 리소스에서 날짜 패턴을 가져오도록 변경
+fun formatDate(context: Context, millis: Long): String {
+    val pattern = context.getString(R.string.pattern_date_full) // "yyyy년 MM월 dd일 (E)"
+    val formatter = SimpleDateFormat(pattern, Locale.getDefault())
     return formatter.format(Date(millis))
+}
+
+// [수정] Context를 받아 리소스에서 패턴 및 포맷을 가져오도록 변경
+fun formatAnnualDate(context: Context, millis: Long): String {
+    val pattern = context.getString(R.string.pattern_date_annual) // "M월 d일"
+    val formatter = SimpleDateFormat(pattern, Locale.getDefault())
+    val dateStr = formatter.format(Date(millis))
+    return context.getString(R.string.format_every_year, dateStr) // "매년 %s"
 }
 
 fun getDDayCount(targetMillis: Long): Long {
@@ -539,9 +586,6 @@ fun getDDayCount(targetMillis: Long): Long {
     return diff / (24 * 60 * 60 * 1000)
 }
 
-/**
- * 선택된 날짜의 월/일을 기준으로, 가장 가까운 미래의 날짜(D-Day)를 계산합니다.
- */
 fun calculateNextAnniversaryDate(selectedMillis: Long): Long {
     val today = Calendar.getInstance().apply {
         set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0);
@@ -565,37 +609,4 @@ fun calculateNextAnniversaryDate(selectedMillis: Long): Long {
     }
 
     return target.timeInMillis
-}
-
-fun main() {
-    val br = BufferedReader(InputStreamReader(System.`in`))
-
-    // 집의 수 N 입력
-    val n = br.readLine().toInt()
-
-    // DP 테이블 초기화 (N개의 집에 대해 R, G, B 3가지 경우의 수)
-    val dp = Array(n) { IntArray(3) }
-
-    var st = StringTokenizer(br.readLine())
-    dp[0][0] = st.nextToken().toInt()
-    dp[0][1] = st.nextToken().toInt()
-    dp[0][2] = st.nextToken().toInt()
-
-    for (i in 1 until n) {
-        st = StringTokenizer(br.readLine())
-        val r = st.nextToken().toInt()
-        val g = st.nextToken().toInt()
-        val b = st.nextToken().toInt()
-
-        // 현재 집을 빨강으로 칠할 경우: 이전 집은 초록 vs 파랑 중 싼 것 선택
-        dp[i][0] = r + min(dp[i - 1][1], dp[i - 1][2])
-
-        // 현재 집을 초록으로 칠할 경우: 이전 집은 빨강 vs 파랑 중 싼 것 선택
-        dp[i][1] = g + min(dp[i - 1][0], dp[i - 1][2])
-
-        // 현재 집을 파랑으로 칠할 경우: 이전 집은 빨강 vs 초록 중 싼 것 선택
-        dp[i][2] = b + min(dp[i - 1][0], dp[i - 1][1])
-    }
-
-    println(min(dp[n - 1][0], min(dp[n - 1][1], dp[n - 1][2])))
 }

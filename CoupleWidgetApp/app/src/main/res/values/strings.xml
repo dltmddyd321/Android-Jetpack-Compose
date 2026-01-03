@@ -1,45 +1,84 @@
 <resources>
     <string name="app_name">플러브</string>
-    <string name="title_activity_anniversary_setting">AnniversarySettingActivity</string>
-    <string name="add_anniversary">기념일 추가하기</string>
-    <string name="select_date">날짜 선택</string>
-    <string name="input_dday">D-Day 입력</string>
-    <string name="anniversary_name">기념일 이름</string>
-    <string name="repeat_annually">매년 반복되는 기념일로 저장됩니다.</string>
-    <string name="how_many_days">며칠째 되는 날인가요?</string>
-    <string name="day_suffix">일</string>
-    <string name="register">등록하기</string>
-    <string name="upcoming_anniversary">다가오는 기념일</string>
-    <string name="no_anniversary">등록된 기념일이 없어요</string>
-    <string name="today">Today</string>
-    <string name="d_day">D-%1$d</string>
-    <string name="d_plus">D+%1$d</string>
-    <string name="widget_setting_guide">위젯 설정 방법</string>
-    <string name="settings">설정</string>
-    <string name="change_top_text">상단 문구 변경</string>
-    <string name="input_top_text">홈 화면 상단에 표시될 문구를 입력해주세요.</string>
-    <string name="change">변경</string>
-    <string name="cancel">취소</string>
-    <string name="select_date_please">날짜를 선택해주세요</string>
-    <string name="start_date">Start Date</string>
-    <string name="change_date">날짜 변경하기</string>
-    <string name="good_lock_install">Good Lock 설치</string>
-    <string name="good_lock_desc">갤럭시 스토어에서 Good Lock을 검색 후, 설치합니다.</string>
-    <string name="lockstar_run">LockStar 실행</string>
-    <string name="lockstar_desc">LockStar를 검섹 후, 실행합니다.</string>
-    <string name="add_dday_widget">D-Day 위젯 추가</string>
-    <string name="add_dday_widget_desc">앱 위젯 항목을 클릭하여 D-Day 위젯을 추가하세요.</string>
-    <string name="lets_start">이제 시작해볼까요? 💖</string>
-    <string name="auto_update_needed">자동 갱신을 위해 필요해요</string>
-    <string name="auto_update_permission">"자정에 D-Day가 바뀌려면\n'알람 및 리마인더' 권한을 허용해주세요."</string>
-    <string name="go_permission_setting">권한 설정하러 가기</string>
-    <string name="midnight_update">매일 자정, 추억이 갱신됩니다 ✨</string>
-    <string name="permission_guide_title">필수 권한 안내</string>
-    <string name="permission_guide_text">"위젯이 매일 자정에 정확히 갱신되려면\n'알람 및 리마인더' 권한과 '알림' 권한이 필요해요.\n\n설정에서 권한을 모두 허용해주세요."</string>
-    <string name="allow_permission">권한 허용 / 설정하기</string>
-    <string name="later">나중에</string>
-    <string name="change_top_text_placeholder">예) 우리가 사랑한 지</string>
-    <string name="the_beginning">The Beginning</string>
+
+    <!-- 공통 버튼 텍스트 -->
     <string name="confirm">확인</string>
-    <string name="title_activity_widget_setting">WidgetSettingActivity</string>
+    <string name="cancel">취소</string>
+    <string name="change">변경</string>
+    <string name="save">저장</string>
+    <string name="later">나중에</string>
+    <string name="settings_title">설정</string>
+
+    <!-- 메인 화면 -->
+    <string name="widget_setup_guide">위젯 설정 방법</string>
+    <string name="default_main_title">우리가 사랑한 지</string>
+    <string name="the_beginning">The Beginning</string>
+    <string name="d_day_plus_format">+ %1$d 일</string>
+    <string name="d_day_minus_format">D%1$d</string>
+    <string name="start_date_label">Start Date</string>
+    <string name="date_placeholder">날짜를 선택해주세요</string>
+    <string name="btn_change_date">날짜 변경하기</string>
+    <string name="fab_anniversary">기념일</string>
+
+    <!-- 기념일 추가 화면 (추가됨) -->
+    <string name="title_add_anniversary">기념일 추가하기</string>
+    <string name="tab_select_date">날짜 선택</string>
+    <string name="tab_input_dday">D-Day 입력</string>
+    <string name="label_anniversary_name">기념일 이름</string>
+    <string name="label_how_many_days">며칠째 되는 날인가요?</string>
+    <string name="suffix_day_unit">일  </string>
+    <string name="msg_annual_repeat_desc">매년 반복되는 기념일로 저장됩니다.</string>
+    <string name="btn_register">등록하기</string>
+    <string name="header_upcoming">다가오는 기념일</string>
+    <string name="desc_delete_icon">삭제</string>
+
+    <!-- 기념일 목록 D-Day 포맷 -->
+    <string name="d_day_today">Today</string>
+    <string name="d_day_d_minus_format">D-%1$d</string>
+    <string name="d_day_d_plus_format">D+%1$d</string>
+
+    <!-- 날짜 포맷 패턴 (로케일별 변경 가능) -->
+    <string name="pattern_date_annual">M월 d일</string>
+    <string name="format_every_year">매년 %1$s</string>
+    <string name="pattern_date_full">yyyy년 MM월 dd일 (E)</string>
+
+    <!-- 위젯 설정 화면 -->
+    <string name="widget_text_color">위젯 글자 색상</string>
+    <string name="widget_bg_image_setting">배경 사진 설정</string>
+    <string name="title_select_color">색상 선택</string>
+    <string name="label_color_new">New:</string>
+    <string name="msg_bg_set">배경 사진이 설정되었습니다.</string>
+    <string name="msg_color_changed">위젯 색상이 변경되었습니다.</string>
+
+    <!-- 상단 문구 변경 다이얼로그 -->
+    <string name="dialog_title_change_main_text">상단 문구 변경</string>
+    <string name="dialog_desc_change_main_text">홈 화면 상단에 표시될 문구를 입력해주세요.</string>
+    <string name="hint_main_text_example">예) 우리가 사랑한 지</string>
+    <string name="text_length_format">%1$d/15</string>
+
+    <!-- 가이드 다이얼로그 -->
+    <string name="dialog_title_guide">D-Day 잠금화면 표시 방법</string>
+    <string name="step_format">Step %1$d</string>
+    <string name="guide_step1_title">Good Lock 설치</string>
+    <string name="guide_step1_desc">갤럭시 스토어에서 Good Lock을 검색 후, 설치합니다.</string>
+    <string name="guide_step2_title">LockStar 실행</string>
+    <string name="guide_step2_desc">LockStar를 검색 후, 실행합니다.</string>
+    <string name="guide_step3_title">D-Day 위젯 추가</string>
+    <string name="guide_step3_desc">앱 위젯 항목을 클릭하여 D-Day 위젯을 추가하세요.</string>
+    <string name="btn_guide_start">이제 시작해볼까요? 💖</string>
+
+    <!-- 권한 관련 -->
+    <string name="dialog_title_permission">필수 권한 안내</string>
+    <string name="dialog_desc_permission">위젯이 매일 자정에 정확히 갱신되려면\n\'알람 및 리마인더\' 권한과 \'알림\' 권한이 필요해요.\n\n설정에서 권한을 모두 허용해주세요.</string>
+    <string name="btn_allow_permission">권한 허용 / 설정하기</string>
+
+    <string name="permission_card_title_needed">자동 갱신을 위해 필요해요</string>
+    <string name="permission_card_desc_needed">자정에 D-Day가 바뀌려면\n\'알람 및 리마인더\' 권한을 허용해주세요.</string>
+    <string name="btn_go_to_settings">권한 설정하러 가기</string>
+    <string name="permission_card_active">매일 자정, 추억이 갱신됩니다 ✨</string>
+
+    <!-- 기타 -->
+    <string name="error_date_format">날짜 변환 오류</string>
+    <string name="desc_back">뒤로가기</string>
+    <string name="desc_selected_bg">선택된 배경</string>
 </resources>
