@@ -1,11 +1,13 @@
 package com.windrr.couplewidgetapp.dday
 
 import android.content.Context
+import androidx.compose.ui.res.stringResource
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.windrr.couplewidgetapp.R
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -39,6 +41,6 @@ suspend fun saveStartTitle(context: Context, title: String) {
 fun getStartTitle(context: Context): Flow<String> {
     return context.dataStore.data
         .map { preferences ->
-            preferences[START_TITLE_KEY] ?: "우리가 사랑한 지"
+            preferences[START_TITLE_KEY] ?: context.getString(R.string.default_main_title)
         }
 }

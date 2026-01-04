@@ -20,7 +20,7 @@
     <string name="btn_change_date">날짜 변경하기</string>
     <string name="fab_anniversary">기념일</string>
 
-    <!-- 기념일 추가 화면 (추가됨) -->
+    <!-- 기념일 추가 화면 -->
     <string name="title_add_anniversary">기념일 추가하기</string>
     <string name="tab_select_date">날짜 선택</string>
     <string name="tab_input_dday">D-Day 입력</string>
@@ -37,7 +37,7 @@
     <string name="d_day_d_minus_format">D-%1$d</string>
     <string name="d_day_d_plus_format">D+%1$d</string>
 
-    <!-- 날짜 포맷 패턴 (로케일별 변경 가능) -->
+    <!-- 날짜 포맷 패턴 -->
     <string name="pattern_date_annual">M월 d일</string>
     <string name="format_every_year">매년 %1$s</string>
     <string name="pattern_date_full">yyyy년 MM월 dd일 (E)</string>
@@ -77,8 +77,22 @@
     <string name="btn_go_to_settings">권한 설정하러 가기</string>
     <string name="permission_card_active">매일 자정, 추억이 갱신됩니다 ✨</string>
 
+    <!-- 푸시 알림 (추가됨) -->
+    <string name="noti_channel_name">기념일 알림</string>
+    <string name="noti_channel_desc">기념일 D-7, D-1, 당일 알림을 보냅니다.</string>
+
+    <string name="noti_title_d7">일주일 전! 🚨</string>
+    <string name="noti_desc_d7">%1$s까지 일주일 남았어요. 준비는 되셨나요?</string>
+
+    <string name="noti_title_d1">내일이에요! 💖</string>
+    <string name="noti_desc_d1">%1$s가 바로 내일입니다! 두근두근</string>
+
+    <string name="noti_title_d_day">축하합니다! 🎉</string>
+    <string name="noti_desc_d_day">오늘은 %1$s입니다. 행복한 하루 보내세요!</string>
+
     <!-- 기타 -->
     <string name="error_date_format">날짜 변환 오류</string>
     <string name="desc_back">뒤로가기</string>
     <string name="desc_selected_bg">선택된 배경</string>
+    <string name="desc_edit_title">제목 수정</string>
 </resources>

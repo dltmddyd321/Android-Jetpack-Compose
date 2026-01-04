@@ -71,22 +71,22 @@ class AnniversaryNotificationReceiver : BroadcastReceiver() {
             7L -> sendNotification(
                 context,
                 item.id,
-                "일주일 전! \uD83D\uDEA8",
-                "${item.title}까지 일주일 남았어요. 준비는 되셨나요?"
+                context.getString(R.string.noti_title_d7), // "일주일 전! 🚨"
+                context.getString(R.string.noti_desc_d7, item.title) // "%s까지 일주일 남았어요..."
             )
 
             1L -> sendNotification(
                 context,
                 item.id,
-                "내일이에요! \uD83D\uDC96",
-                "${item.title}가 바로 내일입니다! 두근두근"
+                context.getString(R.string.noti_title_d1), // "내일이에요! 💖"
+                context.getString(R.string.noti_desc_d1, item.title) // "%s가 바로 내일입니다..."
             )
 
             0L -> sendNotification(
                 context,
                 item.id,
-                "축하합니다! \uD83C\uDF89",
-                "오늘은 ${item.title}입니다. 행복한 하루 보내세요!"
+                context.getString(R.string.noti_title_d_day), // "축하합니다! 🎉"
+                context.getString(R.string.noti_desc_d_day, item.title) // "오늘은 %s입니다..."
             )
         }
     }
@@ -95,13 +95,14 @@ class AnniversaryNotificationReceiver : BroadcastReceiver() {
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val channelId = "anniversary_channel"
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 channelId,
-                "기념일 알림",
+                context.getString(R.string.noti_channel_name), // "기념일 알림"
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "기념일 D-7, D-1, 당일 알림을 보냅니다."
+                description = context.getString(R.string.noti_channel_desc) // "기념일 D-7, D-1, 당일 알림을 보냅니다."
             }
             notificationManager.createNotificationChannel(channel)
         }

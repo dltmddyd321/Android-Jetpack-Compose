@@ -93,6 +93,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -102,6 +103,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
@@ -272,7 +274,7 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
 
     val savedDateMillis by getStartDateFlow(context).collectAsState(initial = null)
     var showDatePicker by remember { mutableStateOf(false) }
-    val storedTitle by getStartTitle(context).collectAsState(initial = "우리가 사랑한 지")
+    val storedTitle by getStartTitle(context).collectAsState(initial = stringResource(R.string.default_main_title))
     var showTitleDialog by remember { mutableStateOf(false) }
     var showGuideDialog by remember { mutableStateOf(false) }
     var showPermissionDialog by remember { mutableStateOf(false) }
@@ -350,7 +352,7 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                 )
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = "위젯 설정 방법",
+                    text = stringResource(R.string.widget_setup_guide),
                     style = MaterialTheme.typography.labelLarge,
                     color = SoftGray,
                     fontWeight = FontWeight.Bold
@@ -369,7 +371,7 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
         ) {
             Icon(
                 imageVector = Icons.Rounded.Settings,
-                contentDescription = "설정",
+                contentDescription = stringResource(R.string.settings_title),
                 tint = SoftGray,
                 modifier = Modifier.size(28.dp)
             )
@@ -469,9 +471,9 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     val dateText = if (savedDateMillis != null) {
-                        formatMillisToDate(savedDateMillis)
+                        formatMillisToDate(context, savedDateMillis)
                     } else {
-                        "날짜를 선택해주세요"
+                        stringResource(R.string.date_placeholder)
                     }
 
                     Text(
@@ -507,7 +509,7 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = "날짜 변경하기", fontWeight = FontWeight.Bold)
+                        Text(text = stringResource(R.string.btn_change_date), fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -548,7 +550,7 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                     },
                     title = {
                         Text(
-                            text = "필수 권한 안내",
+                            text = stringResource(R.string.dialog_title_permission),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                             color = WarmText
@@ -556,7 +558,7 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                     },
                     text = {
                         Text(
-                            text = "위젯이 매일 자정에 정확히 갱신되려면\n'알람 및 리마인더' 권한과 '알림' 권한이 필요해요.\n\n설정에서 권한을 모두 허용해주세요.",
+                            text = stringResource(R.string.dialog_desc_permission),
                             style = MaterialTheme.typography.bodyMedium,
                             color = SoftGray,
                             textAlign = TextAlign.Center
@@ -597,12 +599,12 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                             colors = ButtonDefaults.buttonColors(containerColor = LovelyPink),
                             shape = RoundedCornerShape(8.dp)
                         ) {
-                            Text("권한 허용 / 설정하기", fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.btn_allow_permission), fontWeight = FontWeight.Bold)
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = { showPermissionDialog = false }) {
-                            Text("나중에", color = SoftGray)
+                            Text(stringResource(R.string.later), color = SoftGray)
                         }
                     },
                     shape = RoundedCornerShape(20.dp)
@@ -617,7 +619,7 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                     containerColor = Color.White,
                     title = {
                         Text(
-                            text = "상단 문구 변경",
+                            text = stringResource(R.string.dialog_title_change_main_text),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                             color = WarmText
@@ -626,7 +628,7 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                     text = {
                         Column {
                             Text(
-                                text = "홈 화면 상단에 표시될 문구를 입력해주세요.",
+                                text = stringResource(R.string.dialog_desc_change_main_text),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = SoftGray
                             )
@@ -636,7 +638,7 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                                 onValueChange = {
                                     if (it.length <= 15) tempTitle = it
                                 },
-                                placeholder = { Text("예) 우리가 사랑한 지") },
+                                placeholder = { Text("Ex)" + " ${stringResource(R.string.default_main_title)}") },
                                 singleLine = true,
                                 shape = RoundedCornerShape(12.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
@@ -669,12 +671,12 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                             colors = ButtonDefaults.buttonColors(containerColor = LovelyPink),
                             shape = RoundedCornerShape(8.dp)
                         ) {
-                            Text("변경", fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.change), fontWeight = FontWeight.Bold)
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = { showTitleDialog = false }) {
-                            Text("취소", color = SoftGray)
+                            Text(stringResource(R.string.cancel), color = SoftGray)
                         }
                     },
                     shape = RoundedCornerShape(20.dp)
@@ -695,7 +697,7 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                     modifier = Modifier.size(24.dp)
                 )
             },
-            text = { Text("기념일", fontWeight = FontWeight.Bold) },
+            text = { Text(stringResource(R.string.fab_anniversary), fontWeight = FontWeight.Bold) },
             containerColor = LovelyPink,
             contentColor = Color.White,
             modifier = Modifier
@@ -726,10 +728,10 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                                 DDayGlanceWidget.updateAllWidgets(context)
                             }
                         }
-                    ) { Text("확인") }
+                    ) { Text(stringResource(R.string.confirm)) }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showDatePicker = false }) { Text("취소") }
+                    TextButton(onClick = { showDatePicker = false }) { Text(stringResource(R.string.cancel)) }
                 }
             ) {
                 DatePicker(
@@ -771,7 +773,7 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "D-Day 잠금화면 표시 방법",
+                            text = stringResource(R.string.dialog_title_guide),
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
                             color = WarmText
@@ -793,8 +795,8 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                     ) {
                         GuidePageItem(
                             step = 1,
-                            title = "Good Lock 설치",
-                            description = "갤럭시 스토어에서 Good Lock을 검색 후, 설치합니다.",
+                            title = stringResource(R.string.guide_step1_title),
+                            description = stringResource(R.string.guide_step1_desc),
                             imageResId = R.drawable.guide_first
                         )
 
@@ -802,8 +804,8 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
 
                         GuidePageItem(
                             step = 2,
-                            title = "LockStar 실행",
-                            description = "LockStar를 검섹 후, 실행합니다.",
+                            title = stringResource(R.string.guide_step2_title),
+                            description = stringResource(R.string.guide_step2_desc),
                             imageResId = R.drawable.guide_second
                         )
 
@@ -812,8 +814,8 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
 
                         GuidePageItem(
                             step = 3,
-                            title = "D-Day 위젯 추가",
-                            description = "앱 위젯 항목을 클릭하여 D-Day 위젯을 추가하세요.",
+                            title = stringResource(R.string.guide_step3_title),
+                            description = stringResource(R.string.guide_step3_desc),
                             imageResId = R.drawable.guide_third
                         )
 
@@ -827,7 +829,7 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                                 .height(50.dp),
                             shape = RoundedCornerShape(12.dp)
                         ) {
-                            Text("이제 시작해볼까요? 💖", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text(stringResource(R.string.btn_guide_start), fontWeight = FontWeight.Bold, fontSize = 16.sp)
                         }
 
                         Spacer(modifier = Modifier.height(24.dp))
@@ -879,7 +881,7 @@ fun ExactAlarmPermissionCheck(modifier: Modifier = Modifier) {
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "자동 갱신을 위해 필요해요",
+                        text = stringResource(R.string.permission_card_title_needed),
                         style = MaterialTheme.typography.titleSmall,
                         color = Color(0xFFEF6C00),
                         fontWeight = FontWeight.Bold
@@ -887,7 +889,7 @@ fun ExactAlarmPermissionCheck(modifier: Modifier = Modifier) {
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "자정에 D-Day가 바뀌려면\n'알람 및 리마인더' 권한을 허용해주세요.",
+                    text = stringResource(R.string.permission_card_desc_needed),
                     style = MaterialTheme.typography.bodySmall,
                     textAlign = TextAlign.Center,
                     color = WarmText
@@ -906,7 +908,7 @@ fun ExactAlarmPermissionCheck(modifier: Modifier = Modifier) {
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     modifier = Modifier.height(36.dp)
                 ) {
-                    Text("권한 설정하러 가기", fontSize = 12.sp)
+                    Text(stringResource(R.string.btn_go_to_settings), fontSize = 12.sp)
                 }
             }
         } else {
@@ -923,7 +925,7 @@ fun ExactAlarmPermissionCheck(modifier: Modifier = Modifier) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "매일 자정, 추억이 갱신됩니다 ✨",
+                    text = stringResource(R.string.permission_card_active),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color(0xFF2E7D32),
                     fontWeight = FontWeight.Medium
@@ -936,7 +938,7 @@ fun ExactAlarmPermissionCheck(modifier: Modifier = Modifier) {
 /**
  * Milliseconds (Long) 값을 "yyyy년 MM월 dd일" 형태의 문자열로 변환합니다.
  */
-private fun formatMillisToDate(millis: Long?): String {
+private fun formatMillisToDate(context: Context, millis: Long?): String {
     if (millis == null) return "N/A"
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         try {
@@ -945,7 +947,7 @@ private fun formatMillisToDate(millis: Long?): String {
                 .toLocalDate()
             return localDate.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일"))
         } catch (e: Exception) {
-            return "날짜 변환 오류"
+            return ContextCompat.getString(context, R.string.error_date_format)
         }
     } else {
         try {
@@ -953,7 +955,7 @@ private fun formatMillisToDate(millis: Long?): String {
             val formatter = SimpleDateFormat("yyyy년 MM월 dd일", Locale.getDefault())
             return formatter.format(date)
         } catch (e: Exception) {
-            return "날짜 변환 오류"
+            return ContextCompat.getString(context, R.string.error_date_format)
         }
     }
 }
