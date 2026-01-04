@@ -483,7 +483,7 @@ fun AnniversaryItemCard(
     val displayDateText = if (item.dateCount == 0) {
         formatAnnualDate(context, item.dateMillis)
     } else {
-        formatDate(context, item.dateMillis)
+        formatDate(item.dateMillis)
     }
 
     val targetMillisForDDay = if (item.dateCount == 0) {
@@ -557,19 +557,32 @@ fun calculateDateFromBase(baseMillis: Long, days: Long): Long {
     return calendar.timeInMillis
 }
 
-// [수정] Context를 받아 리소스에서 날짜 패턴을 가져오도록 변경
-fun formatDate(context: Context, millis: Long): String {
-    val pattern = context.getString(R.string.pattern_date_full) // "yyyy년 MM월 dd일 (E)"
-    val formatter = SimpleDateFormat(pattern, Locale.getDefault())
+fun formatDate(millis: Long): String {
+    val locale = Locale.getDefault()
+    val pattern = if (locale.language == "ko") {
+        "yyyy년 MM월 dd일 (E)"
+    } else {
+        "EEE, MMM dd, yyyy"
+    }
+    val formatter = SimpleDateFormat(pattern, locale)
     return formatter.format(Date(millis))
 }
 
-// [수정] Context를 받아 리소스에서 패턴 및 포맷을 가져오도록 변경
 fun formatAnnualDate(context: Context, millis: Long): String {
-    val pattern = context.getString(R.string.pattern_date_annual) // "M월 d일"
-    val formatter = SimpleDateFormat(pattern, Locale.getDefault())
+    val locale = Locale.getDefault()
+    val pattern = if (locale.language == "ko") {
+        "M월 d일"
+    } else {
+        "MMM dd"
+    }
+    val formatter = SimpleDateFormat(pattern, locale)
     val dateStr = formatter.format(Date(millis))
-    return context.getString(R.string.format_every_year, dateStr) // "매년 %s"
+
+    return if (locale.language == "ko") {
+        context.getString(R.string.format_every_year, dateStr)
+    } else {
+        "Every $dateStr"
+    }
 }
 
 fun getDDayCount(targetMillis: Long): Long {

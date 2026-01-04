@@ -198,11 +198,12 @@ class MainActivity : ComponentActivity() {
                                     if (originalBitmap != null) {
                                         bgBitmap = if (rotation != 0f) {
                                             val matrix = Matrix().apply { postRotate(rotation) }
-                                            val rotatedBitmap = android.graphics.Bitmap.createBitmap(
-                                                originalBitmap, 0, 0,
-                                                originalBitmap.width, originalBitmap.height,
-                                                matrix, true
-                                            )
+                                            val rotatedBitmap =
+                                                android.graphics.Bitmap.createBitmap(
+                                                    originalBitmap, 0, 0,
+                                                    originalBitmap.width, originalBitmap.height,
+                                                    matrix, true
+                                                )
                                             if (rotatedBitmap != originalBitmap) {
                                                 originalBitmap.recycle()
                                             }
@@ -450,10 +451,15 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
             ) {
                 Text(
                     text = buildAnnotatedString {
-                        if (savedDateMillis != null) { withStyle(style = SpanStyle(color = LovelyPink)) { append("❤ ") } }
+                        if (savedDateMillis != null) {
+                            withStyle(style = SpanStyle(color = LovelyPink)) { append("❤ ") }
+                        }
                         append(dDayText)
                     },
-                    style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold, letterSpacing = 1.sp),
+                    style = MaterialTheme.typography.headlineLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
+                    ),
                     color = WarmText
                 )
             }
@@ -509,7 +515,10 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = stringResource(R.string.btn_change_date), fontWeight = FontWeight.Bold)
+                        Text(
+                            text = stringResource(R.string.btn_change_date),
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 }
             }
@@ -599,7 +608,10 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                             colors = ButtonDefaults.buttonColors(containerColor = LovelyPink),
                             shape = RoundedCornerShape(8.dp)
                         ) {
-                            Text(stringResource(R.string.btn_allow_permission), fontWeight = FontWeight.Bold)
+                            Text(
+                                stringResource(R.string.btn_allow_permission),
+                                fontWeight = FontWeight.Bold
+                            )
                         }
                     },
                     dismissButton = {
@@ -731,7 +743,9 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                     ) { Text(stringResource(R.string.confirm)) }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showDatePicker = false }) { Text(stringResource(R.string.cancel)) }
+                    TextButton(onClick = {
+                        showDatePicker = false
+                    }) { Text(stringResource(R.string.cancel)) }
                 }
             ) {
                 DatePicker(
@@ -829,7 +843,11 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                                 .height(50.dp),
                             shape = RoundedCornerShape(12.dp)
                         ) {
-                            Text(stringResource(R.string.btn_guide_start), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            Text(
+                                stringResource(R.string.btn_guide_start),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
+                            )
                         }
 
                         Spacer(modifier = Modifier.height(24.dp))
@@ -939,24 +957,24 @@ fun ExactAlarmPermissionCheck(modifier: Modifier = Modifier) {
  * Milliseconds (Long) 값을 "yyyy년 MM월 dd일" 형태의 문자열로 변환합니다.
  */
 private fun formatMillisToDate(context: Context, millis: Long?): String {
-    if (millis == null) return "N/A"
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        try {
-            val localDate = Instant.ofEpochMilli(millis)
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate()
-            return localDate.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일"))
-        } catch (e: Exception) {
-            return ContextCompat.getString(context, R.string.error_date_format)
-        }
+    if (millis == null) return context.getString(R.string.date_placeholder)
+
+    val locale = Locale.getDefault()
+    val pattern = if (locale.language == "ko") {
+        "yyyy년 MM월 dd일"
     } else {
-        try {
-            val date = Date(millis)
-            val formatter = SimpleDateFormat("yyyy년 MM월 dd일", Locale.getDefault())
-            return formatter.format(date)
-        } catch (e: Exception) {
-            return ContextCompat.getString(context, R.string.error_date_format)
+        "MMM dd, yyyy"
+    }
+
+    return try {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDate()
+                .format(DateTimeFormatter.ofPattern(pattern, locale))
+        } else {
+            SimpleDateFormat(pattern, locale).format(Date(millis))
         }
+    } catch (e: Exception) {
+        context.getString(R.string.error_date_format)
     }
 }
 
