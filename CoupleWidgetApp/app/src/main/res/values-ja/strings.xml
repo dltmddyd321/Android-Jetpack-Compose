@@ -1,0 +1,98 @@
+<resources>
+    <string name="app_name">Plove</string>
+
+    <!-- 共通ボタンテキスト -->
+    <string name="confirm">確認</string>
+    <string name="cancel">キャンセル</string>
+    <string name="change">変更</string>
+    <string name="save">保存</string>
+    <string name="later">後で</string>
+    <string name="settings_title">設定</string>
+
+    <!-- メイン画面 -->
+    <string name="widget_setup_guide">ウィジェット設定方法</string>
+    <string name="default_main_title">愛し始めてから</string>
+    <string name="the_beginning">The Beginning</string>
+    <string name="d_day_plus_format">+ %1$d日</string>
+    <string name="d_day_minus_format">D%1$d</string>
+    <string name="start_date_label">開始日</string>
+    <string name="date_placeholder">日付を選択してください</string>
+    <string name="btn_change_date">日付を変更</string>
+    <string name="fab_anniversary">記念日</string>
+
+    <!-- 記念日追加画面 -->
+    <string name="title_add_anniversary">記念日を追加</string>
+    <string name="tab_select_date">日付選択</string>
+    <string name="tab_input_dday">D-Day入力</string>
+    <string name="label_anniversary_name">記念日名</string>
+    <string name="label_how_many_days">日数 (例: 100)</string>
+    <string name="suffix_day_unit">日目</string>
+    <string name="msg_annual_repeat_desc">毎年繰り返される記念日として保存されます。</string>
+    <string name="btn_register">登録</string>
+    <string name="header_upcoming">今後の記念日</string>
+    <string name="desc_delete_icon">削除</string>
+
+    <!-- 記念日リスト D-Day フォーマット -->
+    <string name="d_day_today">今日</string>
+    <string name="d_day_d_minus_format">あと%1$d日</string>
+    <string name="d_day_d_plus_format">%1$d日経過</string>
+
+    <!-- 日付パターン -->
+    <string name="pattern_date_annual">M月d日</string>
+    <string name="format_every_year">毎年%1$s</string>
+    <string name="pattern_date_full">yyyy年M月d日 (E)</string>
+
+    <!-- ウィジェット設定画面 -->
+    <string name="widget_text_color">ウィジェットの文字色</string>
+    <string name="widget_bg_image_setting">背景写真設定</string>
+    <string name="title_select_color">色を選択</string>
+    <string name="label_color_new">新しい色:</string>
+    <string name="msg_bg_set">背景写真が設定されました。</string>
+    <string name="msg_color_changed">ウィジェットの色が変更されました。</string>
+
+    <!-- 上部文言変更ダイアログ -->
+    <string name="dialog_title_change_main_text">トップの文言変更</string>
+    <string name="dialog_desc_change_main_text">ホーム画面上部に表示する文言を入力してください。</string>
+    <string name="hint_main_text_example">例) 愛し始めてから</string>
+    <string name="text_length_format">%1$d/15</string>
+
+    <!-- ガイドダイアログ -->
+    <string name="dialog_title_guide">ロック画面ウィジェット設定ガイド</string>
+    <string name="step_format">Step %1$d</string>
+    <string name="guide_step1_title">Good Lockをインストール</string>
+    <string name="guide_step1_desc">Galaxy StoreでGood Lockを検索してインストールしてください。</string>
+    <string name="guide_step2_title">LockStarを実行</string>
+    <string name="guide_step2_desc">LockStarを検索して実行してください。</string>
+    <string name="guide_step3_title">D-Dayウィジェットを追加</string>
+    <string name="guide_step3_desc">アプリウィジェット項目をタップして、このウィジェットを追加してください。</string>
+    <string name="btn_guide_start">始めましょう！ 💖</string>
+
+    <!-- 権限関連 -->
+    <string name="dialog_title_permission">必須権限のご案内</string>
+    <string name="dialog_desc_permission">ウィジェットが毎日深夜0時に正確に更新されるには、「アラームとリマインダー」権限と「通知」権限が必要です。\n\n設定ですべての権限を許可してください。</string>
+    <string name="btn_allow_permission">権限許可 / 設定</string>
+
+    <string name="permission_card_title_needed">自動更新のために必要です</string>
+    <string name="permission_card_desc_needed">深夜0時にD-Dayを更新するには、\n「アラームとリマインダー」権限を許可してください。</string>
+    <string name="btn_go_to_settings">権限設定へ</string>
+    <string name="permission_card_active">毎日深夜0時に更新されます ✨</string>
+
+    <!-- プッシュ通知 -->
+    <string name="noti_channel_name">記念日通知</string>
+    <string name="noti_channel_desc">記念日の7日前、1日前、当日に通知を送信します。</string>
+
+    <string name="noti_title_d7">1週間前です！ 🚨</string>
+    <string name="noti_desc_d7">%1$sまであと1週間。準備はいいですか？</string>
+
+    <string name="noti_title_d1">明日です！ 💖</string>
+    <string name="noti_desc_d1">%1$sがすぐ明日です！ドキドキしますね。</string>
+
+    <string name="noti_title_d_day">おめでとうございます！ 🎉</string>
+    <string name="noti_desc_d_day">今日は%1$sです。素敵な一日を！</string>
+
+    <!-- その他 -->
+    <string name="error_date_format">日付変換エラー</string>
+    <string name="desc_back">戻る</string>
+    <string name="desc_selected_bg">選択された背景</string>
+    <string name="desc_edit_title">タイトル編集</string>
+</resources>

@@ -1,0 +1,98 @@
+<resources>
+    <string name="app_name">Plove</string>
+
+    <!-- Common Button Text -->
+    <string name="confirm">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="change">Change</string>
+    <string name="save">Save</string>
+    <string name="later">Later</string>
+    <string name="settings_title">Settings</string>
+
+    <!-- Main Screen -->
+    <string name="widget_setup_guide">Widget Guide</string>
+    <string name="default_main_title">Been together since</string>
+    <string name="the_beginning">The Beginning</string>
+    <string name="d_day_plus_format">+ %1$d days</string>
+    <string name="d_day_minus_format">D%1$d</string>
+    <string name="start_date_label">Start Date</string>
+    <string name="date_placeholder">Select a date</string>
+    <string name="btn_change_date">Change Date</string>
+    <string name="fab_anniversary">Anniversary</string>
+
+    <!-- Add Anniversary Screen -->
+    <string name="title_add_anniversary">Add Anniversary</string>
+    <string name="tab_select_date">Select Date</string>
+    <string name="tab_input_dday">Enter D-Day</string>
+    <string name="label_anniversary_name">Title</string>
+    <string name="label_how_many_days">Day count (e.g. 100)</string>
+    <string name="suffix_day_unit"> days</string>
+    <string name="msg_annual_repeat_desc">Saved as an annual repeating event.</string>
+    <string name="btn_register">Add</string>
+    <string name="header_upcoming">Upcoming</string>
+    <string name="desc_delete_icon">Delete</string>
+
+    <!-- Anniversary List D-Day Format -->
+    <string name="d_day_today">Today</string>
+    <string name="d_day_d_minus_format">D-%1$d</string>
+    <string name="d_day_d_plus_format">D+%1$d</string>
+
+    <!-- Date Patterns -->
+    <string name="pattern_date_annual">MMM d</string>
+    <string name="format_every_year">Every %1$s</string>
+    <string name="pattern_date_full">MMM d, yyyy (EEE)</string>
+
+    <!-- Widget Settings Screen -->
+    <string name="widget_text_color">Widget Text Color</string>
+    <string name="widget_bg_image_setting">Background Photo</string>
+    <string name="title_select_color">Select Color</string>
+    <string name="label_color_new">New:</string>
+    <string name="msg_bg_set">Background photo has been set.</string>
+    <string name="msg_color_changed">Widget color has been changed.</string>
+
+    <!-- Change Main Text Dialog -->
+    <string name="dialog_title_change_main_text">Change Title</string>
+    <string name="dialog_desc_change_main_text">Enter the text to display at the top.</string>
+    <string name="hint_main_text_example">e.g.) Been together since</string>
+    <string name="text_length_format">%1$d/15</string>
+
+    <!-- Guide Dialog -->
+    <string name="dialog_title_guide">Lock Screen Widget Guide</string>
+    <string name="step_format">Step %1$d</string>
+    <string name="guide_step1_title">Install Good Lock</string>
+    <string name="guide_step1_desc">Search for and install Good Lock from the Galaxy Store.</string>
+    <string name="guide_step2_title">Run LockStar</string>
+    <string name="guide_step2_desc">Search for and run LockStar.</string>
+    <string name="guide_step3_title">Add D-Day Widget</string>
+    <string name="guide_step3_desc">Tap the App Widget item to add this widget.</string>
+    <string name="btn_guide_start">Let\'s start! 💖</string>
+
+    <!-- Permissions -->
+    <string name="dialog_title_permission">Permission Required</string>
+    <string name="dialog_desc_permission">To update the widget precisely at midnight, \'Alarms &amp; reminders\' and \'Notifications\' permissions are required.\n\nPlease allow all permissions in Settings.</string>
+    <string name="btn_allow_permission">Allow / Settings</string>
+
+    <string name="permission_card_title_needed">Auto-update needs permission</string>
+    <string name="permission_card_desc_needed">To update D-Day at midnight,\nplease allow \'Alarms &amp; reminders\'.</string>
+    <string name="btn_go_to_settings">Go to Settings</string>
+    <string name="permission_card_active">Updates every midnight ✨</string>
+
+    <!-- Notifications -->
+    <string name="noti_channel_name">Anniversary Alerts</string>
+    <string name="noti_channel_desc">Sends alerts for D-7, D-1, and D-Day.</string>
+
+    <string name="noti_title_d7">One week left! 🚨</string>
+    <string name="noti_desc_d7">One week until %1$s. Are you ready?</string>
+
+    <string name="noti_title_d1">It\'s tomorrow! 💖</string>
+    <string name="noti_desc_d1">%1$s is tomorrow! So excited.</string>
+
+    <string name="noti_title_d_day">Congratulations! 🎉</string>
+    <string name="noti_desc_d_day">Today is %1$s. Have a happy day!</string>
+
+    <!-- Misc -->
+    <string name="error_date_format">Date Format Error</string>
+    <string name="desc_back">Back</string>
+    <string name="desc_selected_bg">Selected Background</string>
+    <string name="desc_edit_title">Edit Title</string>
+</resources>
