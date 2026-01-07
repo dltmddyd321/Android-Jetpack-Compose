@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">플러브</string>
+    <string name="app_name">CoupleWidgetApp</string>
 
     <!-- 공통 버튼 텍스트 -->
     <string name="confirm">확인</string>
@@ -49,6 +49,10 @@
     <string name="label_color_new">New:</string>
     <string name="msg_bg_set">배경 사진이 설정되었습니다.</string>
     <string name="msg_color_changed">위젯 색상이 변경되었습니다.</string>
+    <string name="dialog_title_bg_option">배경 사진 설정</string>
+    <string name="action_select_gallery">갤러리에서 선택</string>
+    <string name="action_remove_bg">배경 초기화</string>
+    <string name="msg_bg_removed">배경 사진이 초기화되었습니다.</string>
 
     <!-- 상단 문구 변경 다이얼로그 -->
     <string name="dialog_title_change_main_text">상단 문구 변경</string>
@@ -77,16 +81,13 @@
     <string name="btn_go_to_settings">권한 설정하러 가기</string>
     <string name="permission_card_active">매일 자정, 추억이 갱신됩니다 ✨</string>
 
-    <!-- 푸시 알림 (추가됨) -->
+    <!-- 푸시 알림 -->
     <string name="noti_channel_name">기념일 알림</string>
     <string name="noti_channel_desc">기념일 D-7, D-1, 당일 알림을 보냅니다.</string>
-
     <string name="noti_title_d7">일주일 전! 🚨</string>
     <string name="noti_desc_d7">%1$s까지 일주일 남았어요. 준비는 되셨나요?</string>
-
     <string name="noti_title_d1">내일이에요! 💖</string>
     <string name="noti_desc_d1">%1$s가 바로 내일입니다! 두근두근</string>
-
     <string name="noti_title_d_day">축하합니다! 🎉</string>
     <string name="noti_desc_d_day">오늘은 %1$s입니다. 행복한 하루 보내세요!</string>
 

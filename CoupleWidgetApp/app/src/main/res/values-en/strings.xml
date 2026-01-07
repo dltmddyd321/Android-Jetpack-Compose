@@ -36,6 +36,10 @@
     <string name="d_day_today">Today</string>
     <string name="d_day_d_minus_format">D-%1$d</string>
     <string name="d_day_d_plus_format">D+%1$d</string>
+    <string name="dialog_title_bg_option">Background Settings</string>
+    <string name="action_select_gallery">Select from Gallery</string>
+    <string name="action_remove_bg">Reset Background</string>
+    <string name="msg_bg_removed">Background photo has been reset.</string>
 
     <!-- Date Patterns -->
     <string name="pattern_date_annual">MMM d</string>

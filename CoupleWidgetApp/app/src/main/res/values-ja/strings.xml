@@ -50,6 +50,12 @@
     <string name="msg_bg_set">背景写真が設定されました。</string>
     <string name="msg_color_changed">ウィジェットの色が変更されました。</string>
 
+    <!-- 背景設定オプションダイアログ -->
+    <string name="dialog_title_bg_option">背景写真設定</string>
+    <string name="action_select_gallery">ギャラリーから選択</string>
+    <string name="action_remove_bg">背景を初期化</string>
+    <string name="msg_bg_removed">背景写真が初期化されました。</string>
+
     <!-- 上部文言変更ダイアログ -->
     <string name="dialog_title_change_main_text">トップの文言変更</string>
     <string name="dialog_desc_change_main_text">ホーム画面上部に表示する文言を入力してください。</string>
