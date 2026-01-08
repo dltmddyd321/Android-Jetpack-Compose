@@ -102,4 +102,6 @@
     <string name="desc_selected_bg">選択された背景</string>
     <string name="desc_edit_title">タイトル編集</string>
     <string name="anniversary_title_format">%d日</string>
+    <string name="label_repeat_annually">毎年繰り返す</string>
+    <string name="msg_one_time_event_desc">この日付から何日が過ぎたか計算します。</string>
 </resources>

@@ -30,6 +30,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.AddCircle
+import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.ThumbUp
@@ -168,6 +171,7 @@ fun AnniversaryManagementScreen(
     var selectedDateMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
     var showDatePicker by remember { mutableStateOf(false) }
     var numberInput by remember { mutableStateOf("") }
+    var isAnnual by remember { mutableStateOf(true) }
 
     Box(
         modifier = modifier
@@ -214,8 +218,14 @@ fun AnniversaryManagementScreen(
                             .background(Color(0xFFF5F5F5), RoundedCornerShape(12.dp))
                             .padding(4.dp)
                     ) {
-                        TabButton(text = stringResource(R.string.tab_select_date), isSelected = selectedTab == 0) { selectedTab = 0 }
-                        TabButton(text = stringResource(R.string.tab_input_dday), isSelected = selectedTab == 1) {
+                        TabButton(
+                            text = stringResource(R.string.tab_select_date),
+                            isSelected = selectedTab == 0
+                        ) { selectedTab = 0 }
+                        TabButton(
+                            text = stringResource(R.string.tab_input_dday),
+                            isSelected = selectedTab == 1
+                        ) {
                             selectedTab = 1
                         }
                     }
@@ -241,8 +251,11 @@ fun AnniversaryManagementScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     if (selectedTab == 0) {
-                        // [수정] 날짜 포맷팅에 Context 전달
-                        val dateString = formatAnnualDate(context, selectedDateMillis)
+                        val dateString = if (isAnnual) {
+                            formatAnnualDate(context, selectedDateMillis)
+                        } else {
+                            formatDate(selectedDateMillis)
+                        }
 
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
@@ -260,8 +273,31 @@ fun AnniversaryManagementScreen(
                                 fontWeight = FontWeight.Medium
                             )
                         }
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .padding(top = 12.dp)
+                                .clickable { isAnnual = !isAnnual }
+                        ) {
+                            Icon(
+                                imageVector = if (isAnnual) Icons.Rounded.AddCircle else Icons.Rounded.Add,
+                                contentDescription = null,
+                                tint = if (isAnnual) LovelyPink else SoftGray,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = stringResource(R.string.label_repeat_annually),
+                                color = if (isAnnual) LovelyPink else SoftGray,
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 14.sp
+                            )
+                        }
+
                         Text(
-                            text = stringResource(R.string.msg_annual_repeat_desc), // "매년 반복되는..."
+                            text = if (isAnnual) stringResource(R.string.msg_annual_repeat_desc)
+                            else stringResource(R.string.msg_one_time_event_desc),
                             style = MaterialTheme.typography.labelSmall,
                             color = SoftGray,
                             modifier = Modifier.padding(top = 4.dp, start = 4.dp)
@@ -273,7 +309,12 @@ fun AnniversaryManagementScreen(
                                 if (it.all { char -> char.isDigit() }) numberInput = it
                             },
                             label = { Text(stringResource(R.string.label_how_many_days)) }, // "며칠째 되는..."
-                            trailingIcon = { Text(stringResource(R.string.suffix_day_unit), color = SoftGray) }, // "일 "
+                            trailingIcon = {
+                                Text(
+                                    stringResource(R.string.suffix_day_unit),
+                                    color = SoftGray
+                                )
+                            }, // "일 "
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             singleLine = true,
                             shape = RoundedCornerShape(12.dp),
@@ -295,7 +336,7 @@ fun AnniversaryManagementScreen(
                             if (titleInput.isBlank()) return@Button
 
                             val (finalDate, finalCount) = if (selectedTab == 0) {
-                                selectedDateMillis to 0
+                                selectedDateMillis to (if (isAnnual) 0 else -1)
                             } else {
                                 val days = numberInput.toIntOrNull() ?: 0
                                 calculateDateFromBase(baseStartDate, days.toLong()) to days
@@ -318,7 +359,11 @@ fun AnniversaryManagementScreen(
                             .fillMaxWidth()
                             .height(50.dp)
                     ) {
-                        Text(stringResource(R.string.btn_register), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        Text(
+                            stringResource(R.string.btn_register),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 16.sp
+                        )
                     }
                 }
             }
@@ -479,7 +524,6 @@ fun AnniversaryItemCard(
 ) {
     val context = LocalContext.current
 
-    // [수정] 날짜 포맷팅에 Context 전달 (리소스 사용)
     val displayDateText = if (item.dateCount == 0) {
         formatAnnualDate(context, item.dateMillis)
     } else {
@@ -509,8 +553,14 @@ fun AnniversaryItemCard(
                     .background(CreamWhite),
                 contentAlignment = Alignment.Center
             ) {
+                val icon = when {
+                    item.dateCount > 0 -> Icons.Rounded.ThumbUp
+                    item.dateCount == 0 -> Icons.Rounded.Star
+                    else -> Icons.Rounded.DateRange
+                }
+
                 Icon(
-                    if (item.dateCount > 0) Icons.Rounded.ThumbUp else Icons.Rounded.Star,
+                    imageVector = icon,
                     contentDescription = null,
                     tint = LovelyPink,
                     modifier = Modifier.size(20.dp)
@@ -533,19 +583,18 @@ fun AnniversaryItemCard(
                 )
             }
 
-            // [수정] D-Day 문자열 리소스 사용
             val dDay = getDDayCount(targetMillisForDDay)
             val dDayString = when {
                 dDay == 0L -> stringResource(R.string.d_day_today)
-                dDay > 0 -> stringResource(R.string.d_day_d_minus_format, dDay)
-                else -> stringResource(R.string.d_day_d_plus_format, -dDay)
+                dDay > 0 -> stringResource(R.string.d_day_d_minus_format, dDay) // 미래: D-100
+                else -> stringResource(R.string.d_day_d_plus_format, -dDay)     // 과거: D+100
             }
 
             Text(
                 text = dDayString,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = if (dDay <= 0) LovelyPink else SoftGray
+                color = if (dDay <= 0) LovelyPink else SoftGray // D+Day나 오늘이면 핑크색
             )
         }
     }
