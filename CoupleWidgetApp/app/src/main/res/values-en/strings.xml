@@ -99,4 +99,5 @@
     <string name="desc_back">Back</string>
     <string name="desc_selected_bg">Selected Background</string>
     <string name="desc_edit_title">Edit Title</string>
+    <string name="anniversary_title_format">%d days</string>
 </resources>

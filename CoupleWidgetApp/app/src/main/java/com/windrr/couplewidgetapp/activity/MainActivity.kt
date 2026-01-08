@@ -55,6 +55,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DatePickerDialog
@@ -112,7 +113,9 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.ads.MobileAds
 import com.windrr.couplewidgetapp.R
+import com.windrr.couplewidgetapp.anniversary.AnniversaryItem
 import com.windrr.couplewidgetapp.anniversary.AnniversaryNotificationReceiver
+import com.windrr.couplewidgetapp.anniversary.AppDatabase
 import com.windrr.couplewidgetapp.dday.dataStore
 import com.windrr.couplewidgetapp.dday.getStartDateFlow
 import com.windrr.couplewidgetapp.dday.getStartTitle
@@ -279,6 +282,7 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
     var showTitleDialog by remember { mutableStateOf(false) }
     var showGuideDialog by remember { mutableStateOf(false) }
     var showPermissionDialog by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
 
     val bgUriString by context.dataStore.data
         .map { preferences -> preferences[BACKGROUND_IMAGE_URI_KEY] ?: "" }
@@ -426,13 +430,14 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                 }
             }
 
-            val dDayText = remember(savedDateMillis) {
-                if (savedDateMillis != null) {
-                    val days = calculateDDay(savedDateMillis!!)
-                    if (days > 0) "+ $days 일" else "D${days - 1}"
-                } else {
-                    "The Beginning"
-                }
+            val dDayCount = remember(savedDateMillis) {
+                savedDateMillis?.let { calculateDDay(it) }
+            }
+            val dDayText = if (dDayCount != null) {
+                if (dDayCount > 0) stringResource(R.string.d_day_plus_format, dDayCount)
+                else stringResource(R.string.d_day_minus_format, dDayCount - 1)
+            } else {
+                stringResource(R.string.the_beginning)
             }
 
             Box(
@@ -716,6 +721,19 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                 .align(Alignment.BottomEnd)
                 .padding(24.dp)
         )
+
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f))
+                    .clickable(enabled = false) { }
+                    .align(Alignment.Center),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = LovelyPink)
+            }
+        }
     }
 
     if (showDatePicker) {
@@ -727,17 +745,80 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
                 onSurface = WarmText
             )
         ) {
+            fun calculateTargetDate(baseMillis: Long, days: Int): Long {
+                val calendar = Calendar.getInstance().apply { timeInMillis = baseMillis }
+                calendar.add(Calendar.DAY_OF_YEAR, days - 1)
+                return calendar.timeInMillis
+            }
+
             DatePickerDialog(
                 onDismissRequest = { showDatePicker = false },
                 confirmButton = {
                     TextButton(
                         onClick = {
                             showDatePicker = false
+                            isLoading = true
                             coroutineScope.launch {
                                 val selectedDate =
                                     datePickerState.selectedDateMillis ?: System.currentTimeMillis()
-                                saveStartDate(context, selectedDate)
-                                DDayGlanceWidget.updateAllWidgets(context)
+
+                                try {
+                                    withContext(Dispatchers.IO) {
+                                        saveStartDate(context, selectedDate)
+
+                                        val db = AppDatabase.getDatabase(context)
+                                        val dao = db.anniversaryDao()
+                                        val allItems = dao.getAll()
+                                        allItems.forEach { item ->
+                                            dao.deleteById(item.id)
+                                        }
+
+                                        val todayCalendar = Calendar.getInstance().apply {
+                                            set(Calendar.HOUR_OF_DAY, 0)
+                                            set(Calendar.MINUTE, 0)
+                                            set(Calendar.SECOND, 0)
+                                            set(Calendar.MILLISECOND, 0)
+                                        }
+                                        val todayThreshold = todayCalendar.timeInMillis
+
+                                        val date50 = calculateTargetDate(selectedDate, 50)
+                                        if (date50 >= todayThreshold) {
+                                            val title = context.getString(
+                                                R.string.anniversary_title_format,
+                                                50
+                                            )
+                                            dao.insert(
+                                                AnniversaryItem(
+                                                    title = title,
+                                                    dateMillis = date50,
+                                                    dateCount = 50
+                                                )
+                                            )
+                                        }
+
+                                        for (i in 1..20) {
+                                            val days = i * 100
+                                            val dateDays = calculateTargetDate(selectedDate, days)
+                                            if (dateDays >= todayThreshold) {
+                                                val title = context.getString(
+                                                    R.string.anniversary_title_format,
+                                                    days
+                                                )
+                                                dao.insert(
+                                                    AnniversaryItem(
+                                                        title = title,
+                                                        dateMillis = dateDays,
+                                                        dateCount = days
+                                                    )
+                                                )
+                                            }
+                                        }
+
+                                        DDayGlanceWidget.updateAllWidgets(context)
+                                    }
+                                } finally {
+                                    isLoading = false
+                                }
                             }
                         }
                     ) { Text(stringResource(R.string.confirm)) }

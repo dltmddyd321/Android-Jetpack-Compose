@@ -96,4 +96,5 @@
     <string name="desc_back">뒤로가기</string>
     <string name="desc_selected_bg">선택된 배경</string>
     <string name="desc_edit_title">제목 수정</string>
+    <string name="anniversary_title_format">%d일</string>
 </resources>
