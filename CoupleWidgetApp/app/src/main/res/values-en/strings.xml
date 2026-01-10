@@ -102,4 +102,10 @@
     <string name="anniversary_title_format">%d days</string>
     <string name="label_repeat_annually">Repeat annually</string>
     <string name="msg_one_time_event_desc">Counts days passed since this date.</string>
+
+    <string name="title_language_setting">Language</string>
+    <string name="language_system">System Default</string>
+    <string name="language_ko">Korean</string>
+    <string name="language_en">English</string>
+    <string name="language_ja">Japanese</string>
 </resources>

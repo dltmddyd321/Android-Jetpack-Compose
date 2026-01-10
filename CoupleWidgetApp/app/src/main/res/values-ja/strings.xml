@@ -104,4 +104,10 @@
     <string name="anniversary_title_format">%d日</string>
     <string name="label_repeat_annually">毎年繰り返す</string>
     <string name="msg_one_time_event_desc">この日付から何日が過ぎたか計算します。</string>
+
+    <string name="title_language_setting">言語設定</string>
+    <string name="language_system">システムデフォルト</string>
+    <string name="language_ko">韓国語</string>
+    <string name="language_en">英語</string>
+    <string name="language_ja">日本語</string>
 </resources>

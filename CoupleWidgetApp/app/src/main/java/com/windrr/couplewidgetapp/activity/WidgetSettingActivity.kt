@@ -12,6 +12,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -33,7 +34,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.AccountBox
 import androidx.compose.material.icons.rounded.AccountCircle
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Face
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -69,6 +72,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.net.toUri
+import androidx.core.os.LocaleListCompat
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -132,11 +136,9 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
         .collectAsState(initial = "")
 
     var showColorPicker by remember { mutableStateOf(false) }
-
-    // [추가] 사진 설정 옵션 다이얼로그 (갤러리 vs 초기화) 상태
     var showImageOptionDialog by remember { mutableStateOf(false) }
+    var showLanguageDialog by remember { mutableStateOf(false) }
 
-    // 사진 선택 런처 (Photo Picker)
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
@@ -265,9 +267,96 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                             }
                         }
                     }
+
+//                    HorizontalDivider(
+//                        modifier = Modifier.padding(horizontal = 20.dp),
+//                        color = SoftPeach.copy(alpha = 0.5f)
+//                    )
+//
+//                    // 3. 언어 설정 옵션
+//                    Row(
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .clickable { showLanguageDialog = true }
+//                            .padding(horizontal = 20.dp, vertical = 16.dp),
+//                        horizontalArrangement = Arrangement.SpaceBetween,
+//                        verticalAlignment = Alignment.CenterVertically
+//                    ) {
+//                        Text(
+//                            text = stringResource(R.string.title_language_setting),
+//                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
+//                            color = WarmText
+//                        )
+//
+//                        Icon(
+//                            imageVector = Icons.Rounded.Face,
+//                            contentDescription = null,
+//                            tint = SoftGray,
+//                            modifier = Modifier.size(20.dp)
+//                        )
+//                    }
                 }
             }
         }
+    }
+
+    if (showLanguageDialog) {
+        val currentLocale = AppCompatDelegate.getApplicationLocales().toLanguageTags()
+
+        AlertDialog(
+            onDismissRequest = { showLanguageDialog = false },
+            containerColor = Color.White,
+            title = {
+                Text(
+                    text = stringResource(R.string.title_language_setting),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = WarmText
+                )
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    LanguageOptionItem(
+                        text = stringResource(R.string.language_system),
+                        selected = currentLocale.isEmpty(),
+                        onClick = {
+                            AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList())
+                            showLanguageDialog = false
+                        }
+                    )
+                    LanguageOptionItem(
+                        text = stringResource(R.string.language_ko),
+                        selected = currentLocale.contains("ko"),
+                        onClick = {
+                            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("ko"))
+                            showLanguageDialog = false
+                        }
+                    )
+                    LanguageOptionItem(
+                        text = stringResource(R.string.language_en),
+                        selected = currentLocale.contains("en"),
+                        onClick = {
+                            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("en"))
+                            showLanguageDialog = false
+                        }
+                    )
+                    LanguageOptionItem(
+                        text = stringResource(R.string.language_ja),
+                        selected = currentLocale.contains("ja"),
+                        onClick = {
+                            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("ja"))
+                            showLanguageDialog = false
+                        }
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showLanguageDialog = false }) {
+                    Text(stringResource(R.string.cancel), color = SoftGray)
+                }
+            },
+            shape = RoundedCornerShape(20.dp)
+        )
     }
 
     if (showImageOptionDialog) {
@@ -504,5 +593,38 @@ fun UriImagePreview(uriString: String) {
             tint = SoftGray,
             modifier = Modifier.size(20.dp)
         )
+    }
+}
+
+@Composable
+fun LanguageOptionItem(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick)
+            .background(if (selected) LovelyPink.copy(alpha = 0.1f) else Color.Transparent)
+            .padding(horizontal = 12.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyLarge,
+            color = if (selected) LovelyPink else Color.Black,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
+        )
+        if (selected) {
+            Icon(
+                imageVector = Icons.Rounded.Check,
+                contentDescription = null,
+                tint = LovelyPink,
+                modifier = Modifier.size(20.dp)
+            )
+        }
     }
 }

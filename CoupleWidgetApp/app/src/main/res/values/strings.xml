@@ -99,4 +99,10 @@
     <string name="anniversary_title_format">%d일</string>
     <string name="label_repeat_annually">매년 반복</string>
     <string name="msg_one_time_event_desc">이 날짜부터 며칠이 지났는지 계산합니다.</string>
+
+    <string name="title_language_setting">언어 설정</string>
+    <string name="language_system">시스템 기본값</string>
+    <string name="language_ko">한국어</string>
+    <string name="language_en">English</string>
+    <string name="language_ja">日本語</string>
 </resources>
