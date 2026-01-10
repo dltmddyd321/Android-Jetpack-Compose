@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CoupleWidgetApp</string>
+    <string name="app_name">플러브</string>
 
     <!-- 공통 버튼 텍스트 -->
     <string name="confirm">확인</string>
