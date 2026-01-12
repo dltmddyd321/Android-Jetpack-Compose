@@ -1,5 +1,6 @@
 package com.windrr.couplewidgetapp.activity
 
+import android.app.Activity
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
@@ -7,6 +8,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -56,6 +58,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -72,7 +75,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.net.toUri
-import androidx.core.os.LocaleListCompat
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -88,6 +90,7 @@ import com.windrr.couplewidgetapp.ui.theme.CreamWhite
 import com.windrr.couplewidgetapp.ui.theme.SoftGray
 import com.windrr.couplewidgetapp.ui.theme.SoftPeach
 import com.windrr.couplewidgetapp.ui.theme.WarmText
+import com.windrr.couplewidgetapp.util.AppLanguageState
 import com.windrr.couplewidgetapp.widget.DDayGlanceWidget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
@@ -122,6 +125,7 @@ class WidgetSettingActivity : ComponentActivity() {
 @Composable
 fun WidgetSettingScreen(onBackClick: () -> Unit) {
     val context = LocalContext.current
+    val activity = context as? Activity
     val coroutineScope = rememberCoroutineScope()
 
     val savedColorInt by context.dataStore.data
@@ -138,6 +142,20 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
     var showColorPicker by remember { mutableStateOf(false) }
     var showImageOptionDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
+    var isLanguageChanged by rememberSaveable { mutableStateOf(false) }
+
+    fun handleBack() {
+        if (isLanguageChanged) {
+            activity?.setResult(Activity.RESULT_OK, Intent().apply {
+                putExtra("language_changed", true)
+            })
+        }
+        onBackClick()
+    }
+
+    BackHandler {
+        handleBack()
+    }
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
@@ -176,7 +194,7 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                IconButton(onClick = onBackClick) {
+                IconButton(onClick = { handleBack() }) {
                     Icon(
                         Icons.AutoMirrored.Rounded.ArrowBack,
                         contentDescription = stringResource(R.string.desc_back),
@@ -268,33 +286,33 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                         }
                     }
 
-//                    HorizontalDivider(
-//                        modifier = Modifier.padding(horizontal = 20.dp),
-//                        color = SoftPeach.copy(alpha = 0.5f)
-//                    )
-//
-//                    // 3. 언어 설정 옵션
-//                    Row(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .clickable { showLanguageDialog = true }
-//                            .padding(horizontal = 20.dp, vertical = 16.dp),
-//                        horizontalArrangement = Arrangement.SpaceBetween,
-//                        verticalAlignment = Alignment.CenterVertically
-//                    ) {
-//                        Text(
-//                            text = stringResource(R.string.title_language_setting),
-//                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
-//                            color = WarmText
-//                        )
-//
-//                        Icon(
-//                            imageVector = Icons.Rounded.Face,
-//                            contentDescription = null,
-//                            tint = SoftGray,
-//                            modifier = Modifier.size(20.dp)
-//                        )
-//                    }
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 20.dp),
+                        color = SoftPeach.copy(alpha = 0.5f)
+                    )
+
+                    // 3. 언어 설정 옵션
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { showLanguageDialog = true }
+                            .padding(horizontal = 20.dp, vertical = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.title_language_setting),
+                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
+                            color = WarmText
+                        )
+
+                        Icon(
+                            imageVector = Icons.Rounded.Face,
+                            contentDescription = null,
+                            tint = SoftGray,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                 }
             }
         }
@@ -302,6 +320,7 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
 
     if (showLanguageDialog) {
         val currentLocale = AppCompatDelegate.getApplicationLocales().toLanguageTags()
+        val languageState = remember { AppLanguageState() }
 
         AlertDialog(
             onDismissRequest = { showLanguageDialog = false },
@@ -320,32 +339,40 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                         text = stringResource(R.string.language_system),
                         selected = currentLocale.isEmpty(),
                         onClick = {
-                            AppCompatDelegate.setApplicationLocales(LocaleListCompat.getEmptyLocaleList())
                             showLanguageDialog = false
+                            languageState.updateLocale(context, "system")
+                            (context as? Activity)?.recreate()
+                            isLanguageChanged = true
                         }
                     )
                     LanguageOptionItem(
                         text = stringResource(R.string.language_ko),
                         selected = currentLocale.contains("ko"),
                         onClick = {
-                            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("ko"))
                             showLanguageDialog = false
+                            languageState.updateLocale(context, "ko")
+                            (context as? Activity)?.recreate()
+                            isLanguageChanged = true
                         }
                     )
                     LanguageOptionItem(
                         text = stringResource(R.string.language_en),
                         selected = currentLocale.contains("en"),
                         onClick = {
-                            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("en"))
                             showLanguageDialog = false
+                            languageState.updateLocale(context, "en")
+                            (context as? Activity)?.recreate()
+                            isLanguageChanged = true
                         }
                     )
                     LanguageOptionItem(
                         text = stringResource(R.string.language_ja),
                         selected = currentLocale.contains("ja"),
                         onClick = {
-                            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags("ja"))
                             showLanguageDialog = false
+                            languageState.updateLocale(context, "ja")
+                            (context as? Activity)?.recreate()
+                            isLanguageChanged = true
                         }
                     )
                 }

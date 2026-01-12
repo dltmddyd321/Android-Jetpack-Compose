@@ -1,6 +1,7 @@
 package com.windrr.couplewidgetapp.activity
 
 import android.Manifest
+import android.app.Activity
 import android.app.AlarmManager
 import android.content.Context
 import android.content.Intent
@@ -273,6 +274,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun DDaySettingsScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
+    val activity = context as? Activity
     val coroutineScope = rememberCoroutineScope()
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -293,6 +295,15 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
         initialSelectedDateMillis = savedDateMillis ?: System.currentTimeMillis(),
         initialDisplayMode = DisplayMode.Picker
     )
+
+    val widgetSettingLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val isLanguageChanged = result.data?.getBooleanExtra("language_changed", false) ?: false
+            if (isLanguageChanged) activity?.recreate()
+        }
+    }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -368,7 +379,7 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
         IconButton(
             onClick = {
                 val intent = Intent(context, WidgetSettingActivity::class.java)
-                context.startActivity(intent)
+                widgetSettingLauncher.launch(intent)
             },
             modifier = Modifier
                 .align(Alignment.TopEnd)
