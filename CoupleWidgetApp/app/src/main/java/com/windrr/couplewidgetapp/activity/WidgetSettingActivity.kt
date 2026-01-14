@@ -69,6 +69,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -172,7 +173,8 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                 context.dataStore.edit { settings ->
                     settings[BACKGROUND_IMAGE_URI_KEY] = selectedUri.toString()
                 }
-                Toast.makeText(context, context.getString(R.string.msg_bg_set), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.msg_bg_set), Toast.LENGTH_SHORT)
+                    .show()
                 // 위젯 갱신
                 DDayGlanceWidget.updateAllWidgets(context.applicationContext)
             }
@@ -306,11 +308,12 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                             color = WarmText
                         )
 
-                        Icon(
-                            imageVector = Icons.Rounded.Face,
+                        Image(
+                            painter = painterResource(id = R.drawable.lang),
                             contentDescription = null,
-                            tint = SoftGray,
-                            modifier = Modifier.size(20.dp)
+                            contentScale = ContentScale.Crop,
+                            colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(SoftGray),
+                            modifier = Modifier.size(height = 28.dp, width = 80.dp)
                         )
                     }
                 }
@@ -430,7 +433,11 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                                     context.dataStore.edit { settings ->
                                         settings[BACKGROUND_IMAGE_URI_KEY] = ""
                                     }
-                                    Toast.makeText(context, context.getString(R.string.msg_bg_removed), Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.msg_bg_removed),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             }
                             .padding(vertical = 12.dp),
@@ -540,7 +547,10 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                                     colors = ButtonDefaults.buttonColors(containerColor = LovelyPink),
                                     shape = RoundedCornerShape(8.dp)
                                 ) {
-                                    Text(stringResource(R.string.save), fontWeight = FontWeight.Bold)
+                                    Text(
+                                        stringResource(R.string.save),
+                                        fontWeight = FontWeight.Bold
+                                    )
                                 }
                             }
                         }

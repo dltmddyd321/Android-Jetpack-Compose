@@ -546,29 +546,6 @@ fun AnniversaryItemCard(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(CreamWhite),
-                contentAlignment = Alignment.Center
-            ) {
-                val icon = when {
-                    item.dateCount > 0 -> Icons.Rounded.ThumbUp
-                    item.dateCount == 0 -> Icons.Rounded.Star
-                    else -> Icons.Rounded.DateRange
-                }
-
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = LovelyPink,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = item.title,
@@ -586,15 +563,15 @@ fun AnniversaryItemCard(
             val dDay = getDDayCount(targetMillisForDDay)
             val dDayString = when {
                 dDay == 0L -> stringResource(R.string.d_day_today)
-                dDay > 0 -> stringResource(R.string.d_day_d_minus_format, dDay) // 미래: D-100
-                else -> stringResource(R.string.d_day_d_plus_format, -dDay)     // 과거: D+100
+                dDay > 0 -> stringResource(R.string.d_day_d_minus_format, dDay)
+                else -> stringResource(R.string.d_day_d_plus_format, -dDay)
             }
 
             Text(
                 text = dDayString,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = if (dDay <= 0) LovelyPink else SoftGray // D+Day나 오늘이면 핑크색
+                color = if (dDay <= 0) LovelyPink else SoftGray
             )
         }
     }
