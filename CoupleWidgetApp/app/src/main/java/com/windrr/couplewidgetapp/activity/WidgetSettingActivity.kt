@@ -288,34 +288,34 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                         }
                     }
 
-                    HorizontalDivider(
-                        modifier = Modifier.padding(horizontal = 20.dp),
-                        color = SoftPeach.copy(alpha = 0.5f)
-                    )
-
-                    // 3. 언어 설정 옵션
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { showLanguageDialog = true }
-                            .padding(horizontal = 20.dp, vertical = 16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = stringResource(R.string.title_language_setting),
-                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
-                            color = WarmText
-                        )
-
-                        Image(
-                            painter = painterResource(id = R.drawable.lang),
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(SoftGray),
-                            modifier = Modifier.size(height = 28.dp, width = 80.dp)
-                        )
-                    }
+//                    HorizontalDivider(
+//                        modifier = Modifier.padding(horizontal = 20.dp),
+//                        color = SoftPeach.copy(alpha = 0.5f)
+//                    )
+//
+//                    // 3. 언어 설정 옵션
+//                    Row(
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .clickable { showLanguageDialog = true }
+//                            .padding(horizontal = 20.dp, vertical = 16.dp),
+//                        horizontalArrangement = Arrangement.SpaceBetween,
+//                        verticalAlignment = Alignment.CenterVertically
+//                    ) {
+//                        Text(
+//                            text = stringResource(R.string.title_language_setting),
+//                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
+//                            color = WarmText
+//                        )
+//
+//                        Image(
+//                            painter = painterResource(id = R.drawable.lang),
+//                            contentDescription = null,
+//                            contentScale = ContentScale.Crop,
+//                            colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(SoftGray),
+//                            modifier = Modifier.size(height = 28.dp, width = 80.dp)
+//                        )
+//                    }
                 }
             }
         }
