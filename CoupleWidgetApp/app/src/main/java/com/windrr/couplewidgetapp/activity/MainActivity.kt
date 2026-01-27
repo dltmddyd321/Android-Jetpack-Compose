@@ -346,34 +346,28 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
     ) {
-        Surface(
+        Row(
             modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(16.dp)
+                .padding(16.dp) // 전체 위치 여백
                 .clip(CircleShape)
-                .clickable { showGuideDialog = true },
-            shape = CircleShape,
-            color = Color.White,
-            shadowElevation = 4.dp
+                .clickable { showGuideDialog = true }
+                .padding(horizontal = 4.dp, vertical = 2.dp), // 클릭 영역 내부 여백
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.Info,
-                    contentDescription = null,
-                    tint = LovelyPink,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = stringResource(R.string.widget_setup_guide),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = SoftGray,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            Icon(
+                // 이미지와 더 흡사한 Help 아이콘 (외곽선 스타일)
+                imageVector = Icons.Rounded.Info,
+                contentDescription = null,
+                tint = Color.Gray, // 또는 아주 연한 SoftGray
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = stringResource(R.string.widget_setup_guide),
+                style = MaterialTheme.typography.bodyMedium, // 너무 두껍지 않은 스타일
+                color = Color.Gray,
+                letterSpacing = (-0.5).sp // 자간을 살짝 좁히면 더 세련돼 보입니다.
+            )
         }
 
         IconButton(
@@ -401,9 +395,8 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.Center
         ) {
             Icon(
-                imageVector = Icons.Rounded.Favorite,
+                painter = painterResource(id = R.drawable.main_heart),
                 contentDescription = "Heart",
-                tint = LovelyPink,
                 modifier = Modifier
                     .size(64.dp)
                     .shadow(elevation = 4.dp, shape = CircleShape)
