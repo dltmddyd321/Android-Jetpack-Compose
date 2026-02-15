@@ -394,17 +394,6 @@ fun DDaySettingsScreen(modifier: Modifier = Modifier) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Icon(
-                painter = painterResource(id = R.drawable.main_heart),
-                contentDescription = "Heart",
-                modifier = Modifier
-                    .size(64.dp)
-                    .shadow(elevation = 4.dp, shape = CircleShape)
-                    .background(Color.White, CircleShape)
-                    .padding(12.dp)
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(12.dp))

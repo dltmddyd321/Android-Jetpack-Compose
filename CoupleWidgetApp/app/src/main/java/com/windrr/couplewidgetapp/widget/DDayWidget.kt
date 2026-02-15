@@ -26,6 +26,7 @@ import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
+import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.windrr.couplewidgetapp.R
@@ -75,8 +76,9 @@ class DDayGlanceWidget : GlanceAppWidget() {
             modifier = GlanceModifier
                 .fillMaxSize()
                 .background(Color.Transparent)
-                .padding(8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(2.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
                 provider = ImageProvider(R.drawable.heart),
@@ -84,20 +86,22 @@ class DDayGlanceWidget : GlanceAppWidget() {
                 modifier = GlanceModifier.size(16.dp),
                 colorFilter = ColorFilter.tint(ColorProvider(textColor))
             )
-            Spacer(modifier = GlanceModifier.height(4.dp))
+            Spacer(modifier = GlanceModifier.height(2.dp))
             Text(
                 text = dDayString,
                 style = TextStyle(
                     color = ColorProvider(textColor),
                     fontSize = 12.sp,
-                    fontWeight = FontWeight.Normal,
-                )
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                ),
+                maxLines = 1
             )
         }
     }
 
     /**
-     * D-Day 계산 (기존 로직 동일)
+     * D-Day 계산
      */
     private fun calculateDDay(startDateMillis: Long): Long {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
