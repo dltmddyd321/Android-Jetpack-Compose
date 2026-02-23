@@ -16,8 +16,9 @@ val CreamWhite = Color(0xFFFFF5F5)
 val WarmText = Color(0xFF5D4037)
 val SoftGray = Color(0xFF9E9E9E)
 
-val MinimalBackground = Color(0xFFFAFAFA) // 아주 연한 회색 (종이 질감 느낌)
-val MinimalTextPrimary = Color(0xFF222222) // 거의 검은색 (제목 등)
-val MinimalTextSecondary = Color(0xFF888888) // 연한 회색 (부제목)
-val MinimalAccent = Color(0xFF444444) // 포인트 컬러 (버튼 등)
-val MinimalHeartColor = Color(0xFFFF7675) // 포인트가 되는 하트 색상
+val MinimalBgColor = Color(0xFFF7F8F9) // 아주 밝은 회색 바탕
+val MinimalCardColor = Color.White
+val MinimalTextMain = Color(0xFF333333) // 진한 텍스트
+val MinimalTextSub = Color(0xFF999999) // 연한 텍스트
+val MinimalAccent = Color(0xFFC48B93) // 인디 핑크 (스크린샷의 버튼 색상)
+val MinimalAccentLight = Color(0xFFF8F0F1) // 연한 인디 핑크 (버튼 배경)
