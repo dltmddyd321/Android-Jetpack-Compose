@@ -16,6 +16,7 @@ val CreamWhite = Color(0xFFFFF5F5)
 val WarmText = Color(0xFF5D4037)
 val SoftGray = Color(0xFF9E9E9E)
 
+val MinimalDeleteRed = Color(0xFFE57373)
 val MinimalBgColor = Color(0xFFF7F8F9) // 아주 밝은 회색 바탕
 val MinimalCardColor = Color.White
 val MinimalTextMain = Color(0xFF333333) // 진한 텍스트

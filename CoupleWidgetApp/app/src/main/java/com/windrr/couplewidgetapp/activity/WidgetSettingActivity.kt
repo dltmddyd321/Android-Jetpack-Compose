@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,7 +39,6 @@ import androidx.compose.material.icons.rounded.AccountBox
 import androidx.compose.material.icons.rounded.AccountCircle
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.Face
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -63,7 +63,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
@@ -87,10 +86,12 @@ import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import com.windrr.couplewidgetapp.R
 import com.windrr.couplewidgetapp.activity.ui.theme.CoupleWidgetAppTheme
 import com.windrr.couplewidgetapp.dday.dataStore
-import com.windrr.couplewidgetapp.ui.theme.CreamWhite
-import com.windrr.couplewidgetapp.ui.theme.SoftGray
-import com.windrr.couplewidgetapp.ui.theme.SoftPeach
-import com.windrr.couplewidgetapp.ui.theme.WarmText
+import com.windrr.couplewidgetapp.ui.theme.MinimalAccent
+import com.windrr.couplewidgetapp.ui.theme.MinimalAccentLight
+import com.windrr.couplewidgetapp.ui.theme.MinimalBgColor
+import com.windrr.couplewidgetapp.ui.theme.MinimalCardColor
+import com.windrr.couplewidgetapp.ui.theme.MinimalTextMain
+import com.windrr.couplewidgetapp.ui.theme.MinimalTextSub
 import com.windrr.couplewidgetapp.util.AppLanguageState
 import com.windrr.couplewidgetapp.widget.DDayGlanceWidget
 import kotlinx.coroutines.Dispatchers
@@ -100,7 +101,6 @@ import kotlinx.coroutines.withContext
 
 val WIDGET_COLOR_KEY = intPreferencesKey("widget_color")
 val BACKGROUND_IMAGE_URI_KEY = stringPreferencesKey("background_image_uri")
-val LovelyPink = Color(0xFFFF8FAB)
 
 class WidgetSettingActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -110,7 +110,7 @@ class WidgetSettingActivity : ComponentActivity() {
                 android.graphics.Color.TRANSPARENT,
                 android.graphics.Color.TRANSPARENT
             ),
-            navigationBarStyle = SystemBarStyle.light(
+            navigationBarStyle = SystemBarStyle.auto(
                 android.graphics.Color.TRANSPARENT,
                 android.graphics.Color.TRANSPARENT
             )
@@ -143,6 +143,7 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
     var showColorPicker by remember { mutableStateOf(false) }
     var showImageOptionDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
+
     var isLanguageChanged by rememberSaveable { mutableStateOf(false) }
 
     fun handleBack() {
@@ -173,9 +174,7 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                 context.dataStore.edit { settings ->
                     settings[BACKGROUND_IMAGE_URI_KEY] = selectedUri.toString()
                 }
-                Toast.makeText(context, context.getString(R.string.msg_bg_set), Toast.LENGTH_SHORT)
-                    .show()
-                // 위젯 갱신
+                Toast.makeText(context, context.getString(R.string.msg_bg_set), Toast.LENGTH_SHORT).show()
                 DDayGlanceWidget.updateAllWidgets(context.applicationContext)
             }
         }
@@ -184,55 +183,54 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(CreamWhite, SoftPeach.copy(alpha = 0.3f))
-                )
-            )
+            .background(MinimalBgColor) // 미니멀 배경 적용
             .padding(24.dp)
+            .systemBarsPadding()
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
+            // 상단 바
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
             ) {
                 IconButton(onClick = { handleBack() }) {
                     Icon(
                         Icons.AutoMirrored.Rounded.ArrowBack,
                         contentDescription = stringResource(R.string.desc_back),
-                        tint = SoftGray
+                        tint = MinimalTextMain
                     )
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = stringResource(R.string.settings_title),
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                    color = WarmText
+                    color = MinimalTextMain
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
+            // 설정 카드
             Card(
-                colors = CardDefaults.cardColors(containerColor = Color.White),
+                colors = CardDefaults.cardColors(containerColor = MinimalCardColor),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                shape = RoundedCornerShape(20.dp),
+                shape = RoundedCornerShape(24.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                    // 위젯 글자 색상 옵션
+                Column(modifier = Modifier.padding(vertical = 12.dp)) {
+                    // 1. 위젯 글자 색상 옵션
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { showColorPicker = true }
-                            .padding(horizontal = 20.dp, vertical = 16.dp),
+                            .padding(horizontal = 24.dp, vertical = 20.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
                             text = stringResource(R.string.widget_text_color),
                             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
-                            color = WarmText
+                            color = MinimalTextMain
                         )
 
                         Box(
@@ -240,39 +238,38 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                                 .size(32.dp)
                                 .clip(CircleShape)
                                 .background(currentColor)
-                                .border(1.dp, Color.LightGray, CircleShape)
+                                .border(1.dp, MinimalTextSub.copy(alpha = 0.2f), CircleShape)
                         )
                     }
 
                     HorizontalDivider(
-                        modifier = Modifier.padding(horizontal = 20.dp),
-                        color = SoftPeach.copy(alpha = 0.5f)
+                        modifier = Modifier.padding(horizontal = 24.dp),
+                        color = MinimalTextSub.copy(alpha = 0.1f)
                     )
 
-                    // 배경 사진 설정 옵션
+                    // 2. 배경 사진 설정 옵션
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
-                                // [수정] 바로 갤러리 안 가고 옵션 다이얼로그 띄움
                                 showImageOptionDialog = true
                             }
-                            .padding(horizontal = 20.dp, vertical = 16.dp),
+                            .padding(horizontal = 24.dp, vertical = 20.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
                             text = stringResource(R.string.widget_bg_image_setting),
                             style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
-                            color = WarmText
+                            color = MinimalTextMain
                         )
 
                         Box(
                             modifier = Modifier
-                                .size(32.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(Color(0xFFF5F5F5))
-                                .border(1.dp, Color.LightGray, RoundedCornerShape(8.dp)),
+                                .size(36.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(MinimalBgColor)
+                                .border(1.dp, MinimalTextSub.copy(alpha = 0.2f), RoundedCornerShape(10.dp)),
                             contentAlignment = Alignment.Center
                         ) {
                             if (savedImageUriString.isNotEmpty()) {
@@ -281,16 +278,16 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                                 Icon(
                                     imageVector = Icons.Rounded.AccountCircle,
                                     contentDescription = null,
-                                    tint = SoftGray,
-                                    modifier = Modifier.size(20.dp)
+                                    tint = MinimalTextSub,
+                                    modifier = Modifier.size(24.dp)
                                 )
                             }
                         }
                     }
 
 //                    HorizontalDivider(
-//                        modifier = Modifier.padding(horizontal = 20.dp),
-//                        color = SoftPeach.copy(alpha = 0.5f)
+//                        modifier = Modifier.padding(horizontal = 24.dp),
+//                        color = MinimalTextSub.copy(alpha = 0.1f)
 //                    )
 //
 //                    // 3. 언어 설정 옵션
@@ -298,22 +295,22 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
 //                        modifier = Modifier
 //                            .fillMaxWidth()
 //                            .clickable { showLanguageDialog = true }
-//                            .padding(horizontal = 20.dp, vertical = 16.dp),
+//                            .padding(horizontal = 24.dp, vertical = 20.dp),
 //                        horizontalArrangement = Arrangement.SpaceBetween,
 //                        verticalAlignment = Alignment.CenterVertically
 //                    ) {
 //                        Text(
 //                            text = stringResource(R.string.title_language_setting),
 //                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
-//                            color = WarmText
+//                            color = MinimalTextMain
 //                        )
 //
 //                        Image(
-//                            painter = painterResource(id = R.drawable.lang),
+//                            painter = painterResource(id = R.drawable.ic_launcher_foreground), // TODO: 실제 아이콘 리소스 ID로 교체 (예: R.drawable.ic_language)
 //                            contentDescription = null,
 //                            contentScale = ContentScale.Crop,
-//                            colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(SoftGray),
-//                            modifier = Modifier.size(height = 28.dp, width = 80.dp)
+//                            colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(MinimalTextSub),
+//                            modifier = Modifier.size(48.dp)
 //                        )
 //                    }
                 }
@@ -321,30 +318,30 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
         }
     }
 
+    // 언어 설정 다이얼로그
     if (showLanguageDialog) {
         val currentLocale = AppCompatDelegate.getApplicationLocales().toLanguageTags()
         val languageState = remember { AppLanguageState() }
 
         AlertDialog(
             onDismissRequest = { showLanguageDialog = false },
-            containerColor = Color.White,
+            containerColor = MinimalCardColor,
             title = {
                 Text(
                     text = stringResource(R.string.title_language_setting),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = WarmText
+                    color = MinimalTextMain
                 )
             },
             text = {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     LanguageOptionItem(
                         text = stringResource(R.string.language_system),
                         selected = currentLocale.isEmpty(),
                         onClick = {
                             showLanguageDialog = false
                             languageState.updateLocale(context, "system")
-                            (context as? Activity)?.recreate()
                             isLanguageChanged = true
                         }
                     )
@@ -354,7 +351,6 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                         onClick = {
                             showLanguageDialog = false
                             languageState.updateLocale(context, "ko")
-                            (context as? Activity)?.recreate()
                             isLanguageChanged = true
                         }
                     )
@@ -364,7 +360,6 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                         onClick = {
                             showLanguageDialog = false
                             languageState.updateLocale(context, "en")
-                            (context as? Activity)?.recreate()
                             isLanguageChanged = true
                         }
                     )
@@ -374,7 +369,6 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                         onClick = {
                             showLanguageDialog = false
                             languageState.updateLocale(context, "ja")
-                            (context as? Activity)?.recreate()
                             isLanguageChanged = true
                         }
                     )
@@ -382,23 +376,24 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
             },
             confirmButton = {
                 TextButton(onClick = { showLanguageDialog = false }) {
-                    Text(stringResource(R.string.cancel), color = SoftGray)
+                    Text(stringResource(R.string.cancel), color = MinimalTextSub)
                 }
             },
-            shape = RoundedCornerShape(20.dp)
+            shape = RoundedCornerShape(24.dp)
         )
     }
 
+    // 배경 사진 옵션 다이얼로그
     if (showImageOptionDialog) {
         AlertDialog(
             onDismissRequest = { showImageOptionDialog = false },
-            containerColor = Color.White,
+            containerColor = MinimalCardColor,
             title = {
                 Text(
                     text = stringResource(R.string.dialog_title_bg_option),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = WarmText
+                    color = MinimalTextMain
                 )
             },
             text = {
@@ -406,59 +401,58 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
                             .clickable {
                                 showImageOptionDialog = false
                                 photoPickerLauncher.launch(
                                     PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                                 )
                             }
-                            .padding(vertical = 12.dp),
+                            .padding(vertical = 16.dp, horizontal = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Rounded.AccountBox, contentDescription = null, tint = LovelyPink)
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Icon(Icons.Rounded.AccountBox, contentDescription = null, tint = MinimalAccent)
+                        Spacer(modifier = Modifier.width(16.dp))
                         Text(
                             text = stringResource(R.string.action_select_gallery),
                             style = MaterialTheme.typography.bodyLarge,
-                            color = Color.Black
+                            color = MinimalTextMain
                         )
                     }
 
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
                             .clickable {
                                 showImageOptionDialog = false
                                 coroutineScope.launch {
                                     context.dataStore.edit { settings ->
                                         settings[BACKGROUND_IMAGE_URI_KEY] = ""
                                     }
-                                    Toast.makeText(
-                                        context,
-                                        context.getString(R.string.msg_bg_removed),
-                                        Toast.LENGTH_SHORT
-                                    ).show()
+                                    Toast.makeText(context, context.getString(R.string.msg_bg_removed), Toast.LENGTH_SHORT).show()
+                                    DDayGlanceWidget.updateAllWidgets(context.applicationContext)
                                 }
                             }
-                            .padding(vertical = 12.dp),
+                            .padding(vertical = 16.dp, horizontal = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Rounded.Delete, contentDescription = null, tint = Color.Gray)
-                        Spacer(modifier = Modifier.width(12.dp))
+                        Icon(Icons.Rounded.Delete, contentDescription = null, tint = MinimalTextSub)
+                        Spacer(modifier = Modifier.width(16.dp))
                         Text(
                             text = stringResource(R.string.action_remove_bg),
                             style = MaterialTheme.typography.bodyLarge,
-                            color = Color.Black
+                            color = MinimalTextMain
                         )
                     }
                 }
             },
             confirmButton = {
                 TextButton(onClick = { showImageOptionDialog = false }) {
-                    Text(stringResource(R.string.cancel), color = SoftGray)
+                    Text(stringResource(R.string.cancel), color = MinimalTextSub)
                 }
             },
-            shape = RoundedCornerShape(20.dp)
+            shape = RoundedCornerShape(24.dp)
         )
     }
 
@@ -469,8 +463,8 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                 var selectedColor by remember { mutableStateOf(currentColor) }
 
                 Card(
-                    shape = RoundedCornerShape(20.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = MinimalCardColor),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
@@ -483,9 +477,9 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                             text = stringResource(R.string.title_select_color),
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
-                            color = WarmText
+                            color = MinimalTextMain
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(24.dp))
                         HsvColorPicker(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -503,7 +497,7 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                                 .height(35.dp),
                             controller = controller,
                         )
-                        Spacer(modifier = Modifier.height(24.dp))
+                        Spacer(modifier = Modifier.height(32.dp))
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -512,21 +506,21 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Text(
                                     text = stringResource(R.string.label_color_new),
-                                    color = SoftGray,
+                                    color = MinimalTextSub,
                                     fontSize = 12.sp
                                 )
-                                Spacer(modifier = Modifier.width(8.dp))
+                                Spacer(modifier = Modifier.width(12.dp))
                                 Box(
                                     modifier = Modifier
                                         .size(40.dp)
                                         .clip(CircleShape)
                                         .background(selectedColor)
-                                        .border(1.dp, Color.LightGray, CircleShape)
+                                        .border(1.dp, MinimalTextSub.copy(alpha = 0.2f), CircleShape)
                                 )
                             }
                             Row {
                                 TextButton(onClick = { showColorPicker = false }) {
-                                    Text(stringResource(R.string.cancel), color = SoftGray)
+                                    Text(stringResource(R.string.cancel), color = MinimalTextSub)
                                 }
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Button(
@@ -544,19 +538,49 @@ fun WidgetSettingScreen(onBackClick: () -> Unit) {
                                         }
                                         showColorPicker = false
                                     },
-                                    colors = ButtonDefaults.buttonColors(containerColor = LovelyPink),
-                                    shape = RoundedCornerShape(8.dp)
+                                    colors = ButtonDefaults.buttonColors(containerColor = MinimalAccent),
+                                    shape = RoundedCornerShape(12.dp)
                                 ) {
-                                    Text(
-                                        stringResource(R.string.save),
-                                        fontWeight = FontWeight.Bold
-                                    )
+                                    Text(stringResource(R.string.save), fontWeight = FontWeight.Bold)
                                 }
                             }
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun LanguageOptionItem(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(onClick = onClick)
+            .background(if (selected) MinimalAccentLight else Color.Transparent)
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyLarge,
+            color = if (selected) MinimalAccent else MinimalTextMain,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
+        )
+        if (selected) {
+            Icon(
+                imageVector = Icons.Rounded.Check,
+                contentDescription = null,
+                tint = MinimalAccent,
+                modifier = Modifier.size(20.dp)
+            )
         }
     }
 }
@@ -627,41 +651,8 @@ fun UriImagePreview(uriString: String) {
         Icon(
             imageVector = Icons.Rounded.AccountCircle,
             contentDescription = null,
-            tint = SoftGray,
-            modifier = Modifier.size(20.dp)
+            tint = MinimalTextSub,
+            modifier = Modifier.size(24.dp)
         )
-    }
-}
-
-@Composable
-fun LanguageOptionItem(
-    text: String,
-    selected: Boolean,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .clickable(onClick = onClick)
-            .background(if (selected) LovelyPink.copy(alpha = 0.1f) else Color.Transparent)
-            .padding(horizontal = 12.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.bodyLarge,
-            color = if (selected) LovelyPink else Color.Black,
-            fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal
-        )
-        if (selected) {
-            Icon(
-                imageVector = Icons.Rounded.Check,
-                contentDescription = null,
-                tint = LovelyPink,
-                modifier = Modifier.size(20.dp)
-            )
-        }
     }
 }

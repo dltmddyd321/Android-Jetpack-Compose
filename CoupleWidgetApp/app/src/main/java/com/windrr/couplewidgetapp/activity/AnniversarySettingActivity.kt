@@ -22,20 +22,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.AddCircle
-import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Star
-import androidx.compose.material.icons.rounded.ThumbUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -68,7 +64,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -85,11 +80,12 @@ import com.windrr.couplewidgetapp.anniversary.AnniversaryViewModel
 import com.windrr.couplewidgetapp.anniversary.AnniversaryViewModelFactory
 import com.windrr.couplewidgetapp.anniversary.AppDatabase
 import com.windrr.couplewidgetapp.ui.theme.CoupleWidgetAppTheme
-import com.windrr.couplewidgetapp.ui.theme.CreamWhite
-import com.windrr.couplewidgetapp.ui.theme.LovelyPink
-import com.windrr.couplewidgetapp.ui.theme.SoftGray
-import com.windrr.couplewidgetapp.ui.theme.SoftPeach
-import com.windrr.couplewidgetapp.ui.theme.WarmText
+import com.windrr.couplewidgetapp.ui.theme.MinimalAccent
+import com.windrr.couplewidgetapp.ui.theme.MinimalBgColor
+import com.windrr.couplewidgetapp.ui.theme.MinimalCardColor
+import com.windrr.couplewidgetapp.ui.theme.MinimalDeleteRed
+import com.windrr.couplewidgetapp.ui.theme.MinimalTextMain
+import com.windrr.couplewidgetapp.ui.theme.MinimalTextSub
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -106,7 +102,7 @@ class AnniversarySettingActivity : ComponentActivity() {
                 android.graphics.Color.TRANSPARENT,
                 android.graphics.Color.TRANSPARENT
             ),
-            navigationBarStyle = SystemBarStyle.light(
+            navigationBarStyle = SystemBarStyle.auto(
                 android.graphics.Color.TRANSPARENT,
                 android.graphics.Color.TRANSPARENT
             )
@@ -123,9 +119,7 @@ class AnniversarySettingActivity : ComponentActivity() {
                 AnniversaryManagementScreen(
                     baseStartDate = baseStartDate,
                     viewModel = viewModel,
-                    onBackClick = {
-                        finish()
-                    }
+                    onBackClick = { finish() }
                 )
             }
         }
@@ -141,8 +135,6 @@ fun AnniversaryManagementScreen(
     onBackClick: () -> Unit
 ) {
     val context = LocalContext.current
-
-    // [MVI - View] 1. State 구독
     val state by viewModel.state.collectAsState()
 
     val sortedAnniversaries = remember(state.anniversaries) {
@@ -155,7 +147,6 @@ fun AnniversaryManagementScreen(
         }
     }
 
-    // [MVI - View] 2. SideEffect 처리
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
@@ -171,232 +162,224 @@ fun AnniversaryManagementScreen(
     var selectedDateMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
     var showDatePicker by remember { mutableStateOf(false) }
     var numberInput by remember { mutableStateOf("") }
-    var isAnnual by remember { mutableStateOf(true) }
 
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(CreamWhite, SoftPeach.copy(alpha = 0.3f))
-                )
-            )
-            .padding(24.dp)
+            .background(MinimalBgColor) // 미니멀 배경
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .systemBarsPadding()
+                .padding(horizontal = 24.dp)
+        ) {
+            // [상단 헤더 영역]
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
             ) {
-                IconButton(onClick = onBackClick) {
+                IconButton(
+                    onClick = onBackClick,
+                    modifier = Modifier.padding(end = 8.dp)
+                ) {
                     Icon(
                         Icons.AutoMirrored.Rounded.ArrowBack,
-                        contentDescription = stringResource(R.string.desc_back), // 리소스 적용
-                        tint = SoftGray
+                        contentDescription = stringResource(R.string.desc_back),
+                        tint = MinimalTextMain
                     )
                 }
-                Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = stringResource(R.string.title_add_anniversary), // "기념일 추가하기"
+                    text = stringResource(R.string.title_add_anniversary),
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                    color = WarmText
+                    color = MinimalTextMain
                 )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Card(
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                shape = RoundedCornerShape(20.dp),
-                modifier = Modifier.fillMaxWidth()
+            // [메인 스크롤 영역]
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                contentPadding = PaddingValues(bottom = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Column(modifier = Modifier.padding(20.dp)) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(0xFFF5F5F5), RoundedCornerShape(12.dp))
-                            .padding(4.dp)
-                    ) {
-                        TabButton(
-                            text = stringResource(R.string.tab_select_date),
-                            isSelected = selectedTab == 0
-                        ) { selectedTab = 0 }
-                        TabButton(
-                            text = stringResource(R.string.tab_input_dday),
-                            isSelected = selectedTab == 1
-                        ) {
-                            selectedTab = 1
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    OutlinedTextField(
-                        value = titleInput,
-                        onValueChange = { titleInput = it },
-                        label = { Text(stringResource(R.string.label_anniversary_name)) }, // "기념일 이름"
-                        singleLine = true,
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = LovelyPink,
-                            focusedLabelColor = LovelyPink,
-                            cursorColor = LovelyPink,
-                            focusedTextColor = Color.Black,
-                            unfocusedTextColor = Color.Black
-                        ),
+                // 1. 입력 폼 섹션
+                item {
+                    Card(
+                        colors = CardDefaults.cardColors(containerColor = MinimalCardColor),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                        shape = RoundedCornerShape(24.dp),
                         modifier = Modifier.fillMaxWidth()
-                    )
+                    ) {
+                        Column(modifier = Modifier.padding(24.dp)) {
+                            // 탭 버튼
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(MinimalBgColor, RoundedCornerShape(12.dp))
+                                    .padding(4.dp)
+                            ) {
+                                TabButton(
+                                    text = stringResource(R.string.tab_select_date),
+                                    isSelected = selectedTab == 0
+                                ) { selectedTab = 0 }
+                                TabButton(
+                                    text = stringResource(R.string.tab_input_dday),
+                                    isSelected = selectedTab == 1
+                                ) { selectedTab = 1 }
+                            }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(20.dp))
 
-                    if (selectedTab == 0) {
-                        val dateString = if (isAnnual) {
-                            formatAnnualDate(context, selectedDateMillis)
-                        } else {
-                            formatDate(selectedDateMillis)
-                        }
-
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { showDatePicker = true }
-                                .background(CreamWhite, RoundedCornerShape(12.dp))
-                                .padding(16.dp)
-                        ) {
-                            Icon(Icons.Rounded.Star, contentDescription = null, tint = LovelyPink)
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Text(
-                                text = dateString,
-                                color = WarmText,
-                                fontWeight = FontWeight.Medium
+                            // 기념일 이름 입력
+                            OutlinedTextField(
+                                value = titleInput,
+                                onValueChange = { titleInput = it },
+                                label = { Text(stringResource(R.string.label_anniversary_name)) },
+                                singleLine = true,
+                                shape = RoundedCornerShape(12.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = MinimalAccent,
+                                    unfocusedBorderColor = MinimalTextSub.copy(alpha = 0.3f),
+                                    focusedLabelColor = MinimalAccent,
+                                    unfocusedLabelColor = MinimalTextSub,
+                                    cursorColor = MinimalAccent,
+                                    focusedTextColor = MinimalTextMain,
+                                    unfocusedTextColor = MinimalTextMain
+                                ),
+                                modifier = Modifier.fillMaxWidth()
                             )
-                        }
 
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .padding(top = 12.dp)
-                                .clickable { isAnnual = !isAnnual }
-                        ) {
-                            Icon(
-                                imageVector = if (isAnnual) Icons.Rounded.AddCircle else Icons.Rounded.Add,
-                                contentDescription = null,
-                                tint = if (isAnnual) LovelyPink else SoftGray,
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = stringResource(R.string.label_repeat_annually),
-                                color = if (isAnnual) LovelyPink else SoftGray,
-                                fontWeight = FontWeight.Medium,
-                                fontSize = 14.sp
-                            )
-                        }
+                            Spacer(modifier = Modifier.height(16.dp))
 
-                        Text(
-                            text = if (isAnnual) stringResource(R.string.msg_annual_repeat_desc)
-                            else stringResource(R.string.msg_one_time_event_desc),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = SoftGray,
-                            modifier = Modifier.padding(top = 4.dp, start = 4.dp)
-                        )
-                    } else {
-                        OutlinedTextField(
-                            value = numberInput,
-                            onValueChange = {
-                                if (it.all { char -> char.isDigit() }) numberInput = it
-                            },
-                            label = { Text(stringResource(R.string.label_how_many_days)) }, // "며칠째 되는..."
-                            trailingIcon = {
+                            if (selectedTab == 0) {
+                                val dateString = formatAnnualDate(context, selectedDateMillis)
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .clickable { showDatePicker = true }
+                                        .background(MinimalBgColor)
+                                        .padding(16.dp)
+                                ) {
+                                    Icon(
+                                        Icons.Rounded.Star,
+                                        contentDescription = null,
+                                        tint = MinimalAccent
+                                    )
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Text(
+                                        text = dateString,
+                                        color = MinimalTextMain,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
                                 Text(
-                                    stringResource(R.string.suffix_day_unit),
-                                    color = SoftGray
+                                    text = stringResource(R.string.msg_annual_repeat_desc),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MinimalTextSub,
+                                    modifier = Modifier.padding(top = 8.dp, start = 4.dp)
                                 )
-                            }, // "일 "
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            singleLine = true,
-                            shape = RoundedCornerShape(12.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = LovelyPink,
-                                focusedLabelColor = LovelyPink,
-                                cursorColor = LovelyPink,
-                                focusedTextColor = Color.Black,
-                                unfocusedTextColor = Color.Black
-                            ),
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                            } else {
+                                OutlinedTextField(
+                                    value = numberInput,
+                                    onValueChange = {
+                                        if (it.all { char -> char.isDigit() }) numberInput = it
+                                    },
+                                    label = { Text(stringResource(R.string.label_how_many_days)) },
+                                    trailingIcon = {
+                                        Text(
+                                            stringResource(R.string.suffix_day_unit),
+                                            color = MinimalTextSub
+                                        )
+                                    },
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    singleLine = true,
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = MinimalAccent,
+                                        unfocusedBorderColor = MinimalTextSub.copy(alpha = 0.3f),
+                                        focusedLabelColor = MinimalAccent,
+                                        unfocusedLabelColor = MinimalTextSub,
+                                        cursorColor = MinimalAccent,
+                                        focusedTextColor = MinimalTextMain,
+                                        unfocusedTextColor = MinimalTextMain
+                                    ),
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(24.dp))
+
+                            // 등록 버튼
+                            Button(
+                                onClick = {
+                                    if (titleInput.isBlank()) return@Button
+
+                                    val (finalDate, finalCount) = if (selectedTab == 0) {
+                                        selectedDateMillis to 0
+                                    } else {
+                                        val days = numberInput.toIntOrNull() ?: 0
+                                        calculateDateFromBase(baseStartDate, days.toLong()) to days
+                                    }
+
+                                    viewModel.handleIntent(
+                                        AnniversaryIntent.AddAnniversary(
+                                            title = titleInput,
+                                            dateMillis = finalDate,
+                                            dateCount = finalCount
+                                        )
+                                    )
+
+                                    titleInput = ""
+                                    numberInput = ""
+                                },
+                                colors = ButtonDefaults.buttonColors(containerColor = MinimalAccent),
+                                shape = RoundedCornerShape(12.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(52.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.btn_register),
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp,
+                                    color = Color.White
+                                )
+                            }
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    Button(
-                        onClick = {
-                            if (titleInput.isBlank()) return@Button
-
-                            val (finalDate, finalCount) = if (selectedTab == 0) {
-                                selectedDateMillis to (if (isAnnual) 0 else -1)
-                            } else {
-                                val days = numberInput.toIntOrNull() ?: 0
-                                calculateDateFromBase(baseStartDate, days.toLong()) to days
-                            }
-
-                            viewModel.handleIntent(
-                                AnniversaryIntent.AddAnniversary(
-                                    title = titleInput,
-                                    dateMillis = finalDate,
-                                    dateCount = finalCount
-                                )
-                            )
-
-                            titleInput = ""
-                            numberInput = ""
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = LovelyPink),
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp)
+                    // 리스트 헤더
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            stringResource(R.string.btn_register),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp
+                            text = stringResource(R.string.header_upcoming),
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                            color = MinimalTextMain,
+                            modifier = Modifier.padding(start = 4.dp)
                         )
+
+                        if (state.isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                color = MinimalAccent,
+                                strokeWidth = 2.dp
+                            )
+                        }
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = stringResource(R.string.header_upcoming), // "다가오는 기념일"
-                    style = MaterialTheme.typography.titleMedium,
-                    color = SoftGray,
-                    modifier = Modifier.padding(start = 4.dp)
-                )
-
-                if (state.isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        color = LovelyPink,
-                        strokeWidth = 2.dp
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            LazyColumn(
-                contentPadding = PaddingValues(bottom = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
+                // 2. 리스트 아이템 섹션
                 items(
                     items = sortedAnniversaries,
                     key = { it.id }
@@ -416,9 +399,8 @@ fun AnniversaryManagementScreen(
                         state = dismissState,
                         backgroundContent = {
                             val color by animateColorAsState(
-                                targetValue = if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart) Color(
-                                    0xFFFF5252
-                                ) else Color.Transparent,
+                                targetValue = if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart)
+                                    MinimalDeleteRed else Color.Transparent,
                                 label = "DismissColor"
                             )
                             Box(
@@ -447,16 +429,17 @@ fun AnniversaryManagementScreen(
         }
     }
 
+    // DatePicker
     if (showDatePicker) {
         val datePickerState =
             rememberDatePickerState(initialSelectedDateMillis = selectedDateMillis)
 
         MaterialTheme(
             colorScheme = MaterialTheme.colorScheme.copy(
-                primary = LovelyPink,
+                primary = MinimalAccent,
                 onPrimary = Color.White,
-                surface = Color.White,
-                onSurface = Color.Black // 날짜 텍스트 가독성 (검은색)
+                surface = MinimalCardColor,
+                onSurface = MinimalTextMain
             )
         ) {
             DatePickerDialog(
@@ -469,29 +452,38 @@ fun AnniversaryManagementScreen(
                             showDatePicker = false
                         }
                     ) {
-                        Text(stringResource(R.string.confirm), fontWeight = FontWeight.Bold)
+                        Text(
+                            stringResource(R.string.confirm),
+                            fontWeight = FontWeight.Bold,
+                            color = MinimalAccent
+                        )
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showDatePicker = false }) {
-                        Text(stringResource(R.string.cancel), color = SoftGray)
+                        Text(stringResource(R.string.cancel), color = MinimalTextSub)
                     }
                 },
-                colors = DatePickerDefaults.colors(
-                    containerColor = Color.White
-                )
+                colors = DatePickerDefaults.colors(containerColor = MinimalCardColor)
             ) {
                 DatePicker(
                     state = datePickerState,
                     colors = DatePickerDefaults.colors(
-                        dayContentColor = Color.Black,
-                        selectedDayContentColor = Color.White,
-                        selectedDayContainerColor = LovelyPink,
-                        todayDateBorderColor = LovelyPink,
-                        todayContentColor = LovelyPink,
-                        weekdayContentColor = SoftGray,
-                        yearContentColor = Color.Black,
-                        currentYearContentColor = LovelyPink
+                        containerColor = MinimalCardColor, // 달력 전체 배경을 명시적으로 흰색 고정
+                        titleContentColor = MinimalTextSub, // 상단 '날짜 선택' 글자색
+                        headlineContentColor = MinimalTextMain, // 선택된 날짜(큰 글씨) 색상
+                        weekdayContentColor = MinimalTextSub, // 월, 화, 수... 요일 색상
+                        subheadContentColor = MinimalTextMain, // 상단 '2026년 2월' 글자색
+                        navigationContentColor = MinimalTextMain, // 좌우 화살표 색상
+                        yearContentColor = MinimalTextMain, // 연도 선택 시 일반 연도 색상
+                        currentYearContentColor = MinimalAccent, // 연도 선택 시 현재 연도 색상
+                        selectedYearContentColor = Color.White, // 연도 선택 시 선택된 연도 글자색
+                        selectedYearContainerColor = MinimalAccent, // 연도 선택 시 선택된 연도 배경색
+                        dayContentColor = MinimalTextMain, // 일반 날짜 글자색
+                        selectedDayContentColor = Color.White, // 선택된 날짜 글자색
+                        selectedDayContainerColor = MinimalAccent, // 선택된 날짜 배경색
+                        todayContentColor = MinimalAccent, // 오늘 날짜 글자색
+                        todayDateBorderColor = MinimalAccent // 오늘 날짜 테두리색
                     )
                 )
             }
@@ -505,14 +497,14 @@ fun RowScope.TabButton(text: String, isSelected: Boolean, onClick: () -> Unit) {
         modifier = Modifier
             .weight(1f)
             .clip(RoundedCornerShape(10.dp))
-            .background(if (isSelected) Color.White else Color.Transparent)
+            .background(if (isSelected) MinimalCardColor else Color.Transparent)
             .clickable(onClick = onClick)
             .padding(vertical = 10.dp),
         contentAlignment = Alignment.Center
     ) {
         Text(
             text = text,
-            color = if (isSelected) LovelyPink else SoftGray,
+            color = if (isSelected) MinimalAccent else MinimalTextSub,
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
         )
     }
@@ -537,13 +529,13 @@ fun AnniversaryItemCard(
     }
 
     Card(
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MinimalCardColor),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
@@ -551,12 +543,13 @@ fun AnniversaryItemCard(
                     text = item.title,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold,
-                    color = WarmText
+                    color = MinimalTextMain
                 )
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = displayDateText,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = SoftGray
+                    color = MinimalTextSub
                 )
             }
 
@@ -571,12 +564,13 @@ fun AnniversaryItemCard(
                 text = dDayString,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = if (dDay <= 0) LovelyPink else SoftGray
+                color = if (dDay <= 0) MinimalAccent else MinimalTextSub
             )
         }
     }
 }
 
+// Helper Functions
 fun calculateDateFromBase(baseMillis: Long, days: Long): Long {
     val calendar = Calendar.getInstance().apply { timeInMillis = baseMillis }
     calendar.add(Calendar.DAY_OF_YEAR, (days - 1).toInt())
@@ -586,7 +580,7 @@ fun calculateDateFromBase(baseMillis: Long, days: Long): Long {
 fun formatDate(millis: Long): String {
     val locale = Locale.getDefault()
     val pattern = if (locale.language == "ko") {
-        "yyyy년 MM월 dd일 (E)"
+        "yyyy.MM.dd (E)"
     } else {
         "EEE, MMM dd, yyyy"
     }
@@ -597,7 +591,7 @@ fun formatDate(millis: Long): String {
 fun formatAnnualDate(context: Context, millis: Long): String {
     val locale = Locale.getDefault()
     val pattern = if (locale.language == "ko") {
-        "M월 d일"
+        "M.d"
     } else {
         "MMM dd"
     }

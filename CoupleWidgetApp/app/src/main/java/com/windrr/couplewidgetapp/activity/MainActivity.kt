@@ -202,7 +202,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         MobileAds.initialize(this) {}
         enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.auto(
+            statusBarStyle = SystemBarStyle.light(
                 android.graphics.Color.TRANSPARENT,
                 android.graphics.Color.TRANSPARENT
             ),
@@ -732,7 +732,28 @@ fun DDaySettingsScreen(
                     }
                 },
                 colors = DatePickerDefaults.colors(containerColor = MinimalCardColor)
-            ) { DatePicker(state = datePickerState) }
+            ) {
+                DatePicker(
+                    state = datePickerState,
+                    colors = DatePickerDefaults.colors(
+                        containerColor = MinimalCardColor, // 달력 전체 배경을 명시적으로 흰색 고정
+                        titleContentColor = MinimalTextSub, // 상단 '날짜 선택' 글자색
+                        headlineContentColor = MinimalTextMain, // 선택된 날짜(큰 글씨) 색상
+                        weekdayContentColor = MinimalTextSub, // 월, 화, 수... 요일 색상
+                        subheadContentColor = MinimalTextMain, // 상단 '2026년 2월' 글자색
+                        navigationContentColor = MinimalTextMain, // 좌우 화살표 색상
+                        yearContentColor = MinimalTextMain, // 연도 선택 시 일반 연도 색상
+                        currentYearContentColor = MinimalAccent, // 연도 선택 시 현재 연도 색상
+                        selectedYearContentColor = Color.White, // 연도 선택 시 선택된 연도 글자색
+                        selectedYearContainerColor = MinimalAccent, // 연도 선택 시 선택된 연도 배경색
+                        dayContentColor = MinimalTextMain, // 일반 날짜 글자색
+                        selectedDayContentColor = Color.White, // 선택된 날짜 글자색
+                        selectedDayContainerColor = MinimalAccent, // 선택된 날짜 배경색
+                        todayContentColor = MinimalAccent, // 오늘 날짜 글자색
+                        todayDateBorderColor = MinimalAccent // 오늘 날짜 테두리색
+                    )
+                )
+            }
         }
     }
 
