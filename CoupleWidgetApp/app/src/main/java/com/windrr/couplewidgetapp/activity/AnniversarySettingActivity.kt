@@ -31,7 +31,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Star
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -162,6 +164,25 @@ fun AnniversaryManagementScreen(
     var selectedDateMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
     var showDatePicker by remember { mutableStateOf(false) }
     var numberInput by remember { mutableStateOf("") }
+
+    // 수정 다이얼로그 관련 상태
+    var showEditDialog by remember { mutableStateOf(false) }
+    var editItem by remember { mutableStateOf<AnniversaryItem?>(null) }
+    var editTitle by remember { mutableStateOf("") }
+    var editSelectedTab by remember { mutableIntStateOf(0) }
+    var editSelectedDateMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    var editShowDatePicker by remember { mutableStateOf(false) }
+    var editNumberInput by remember { mutableStateOf("") }
+
+    // 수정 다이얼로그가 열릴 때 상태 초기화
+    LaunchedEffect(editItem) {
+        editItem?.let { item ->
+            editTitle = item.title
+            editSelectedTab = if (item.dateCount == 0) 0 else 1
+            editSelectedDateMillis = item.dateMillis
+            editNumberInput = if (item.dateCount > 0) item.dateCount.toString() else ""
+        }
+    }
 
     Box(
         modifier = modifier
@@ -421,7 +442,13 @@ fun AnniversaryManagementScreen(
                         },
                         enableDismissFromStartToEnd = false,
                         content = {
-                            AnniversaryItemCard(item = item)
+                            AnniversaryItemCard(
+                                item = item,
+                                onEditClick = { anniversaryItem ->
+                                    editItem = anniversaryItem
+                                    showEditDialog = true
+                                }
+                            )
                         }
                     )
                 }
@@ -489,6 +516,220 @@ fun AnniversaryManagementScreen(
             }
         }
     }
+
+    // 수정 다이얼로그
+    if (showEditDialog && editItem != null) {
+        AlertDialog(
+            onDismissRequest = {
+                showEditDialog = false
+                editItem = null
+            },
+            containerColor = MinimalCardColor,
+            title = {
+                Text(
+                    "기념일 수정",
+                    fontWeight = FontWeight.Bold,
+                    color = MinimalTextMain
+                )
+            },
+            text = {
+                Column {
+                    // 기념일 이름 입력
+                    OutlinedTextField(
+                        value = editTitle,
+                        onValueChange = { editTitle = it },
+                        label = { Text("기념일 이름") },
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MinimalAccent,
+                            unfocusedBorderColor = MinimalTextSub.copy(alpha = 0.3f),
+                            focusedLabelColor = MinimalAccent,
+                            unfocusedLabelColor = MinimalTextSub,
+                            cursorColor = MinimalAccent,
+                            focusedTextColor = MinimalTextMain,
+                            unfocusedTextColor = MinimalTextMain
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // 탭 버튼
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MinimalBgColor, RoundedCornerShape(12.dp))
+                            .padding(4.dp)
+                    ) {
+                        TabButton(
+                            text = "날짜 선택",
+                            isSelected = editSelectedTab == 0
+                        ) { editSelectedTab = 0 }
+                        TabButton(
+                            text = "D-Day 입력",
+                            isSelected = editSelectedTab == 1
+                        ) { editSelectedTab = 1 }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    if (editSelectedTab == 0) {
+                        val dateString = formatAnnualDate(context, editSelectedDateMillis)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .clickable { editShowDatePicker = true }
+                                .background(MinimalBgColor)
+                                .padding(16.dp)
+                        ) {
+                            Icon(
+                                Icons.Rounded.Star,
+                                contentDescription = null,
+                                tint = MinimalAccent
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = dateString,
+                                color = MinimalTextMain,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
+                        Text(
+                            text = "매년 반복됩니다",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MinimalTextSub,
+                            modifier = Modifier.padding(top = 8.dp, start = 4.dp)
+                        )
+                    } else {
+                        OutlinedTextField(
+                            value = editNumberInput,
+                            onValueChange = {
+                                if (it.all { char -> char.isDigit() }) editNumberInput = it
+                            },
+                            label = { Text("며칠") },
+                            trailingIcon = {
+                                Text(
+                                    "일",
+                                    color = MinimalTextSub
+                                )
+                            },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            singleLine = true,
+                            shape = RoundedCornerShape(12.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = MinimalAccent,
+                                unfocusedBorderColor = MinimalTextSub.copy(alpha = 0.3f),
+                                focusedLabelColor = MinimalAccent,
+                                unfocusedLabelColor = MinimalTextSub,
+                                cursorColor = MinimalAccent,
+                                focusedTextColor = MinimalTextMain,
+                                unfocusedTextColor = MinimalTextMain
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (editTitle.isNotBlank() && editItem != null) {
+                            val (finalDate, finalCount) = if (editSelectedTab == 0) {
+                                editSelectedDateMillis to 0
+                            } else {
+                                val days = editNumberInput.toIntOrNull() ?: 0
+                                calculateDateFromBase(baseStartDate, days.toLong()) to days
+                            }
+
+                            viewModel.handleIntent(
+                                AnniversaryIntent.UpdateAnniversary(
+                                    id = editItem!!.id,
+                                    title = editTitle,
+                                    dateMillis = finalDate,
+                                    dateCount = finalCount
+                                )
+                            )
+
+                            showEditDialog = false
+                            editItem = null
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MinimalAccent)
+                ) {
+                    Text("수정 완료", color = Color.White)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showEditDialog = false
+                    editItem = null
+                }) {
+                    Text("취소", color = MinimalTextSub)
+                }
+            },
+            shape = RoundedCornerShape(16.dp)
+        )
+    }
+
+    // 수정용 DatePicker
+    if (editShowDatePicker) {
+        val datePickerState =
+            rememberDatePickerState(initialSelectedDateMillis = editSelectedDateMillis)
+
+        MaterialTheme(
+            colorScheme = MaterialTheme.colorScheme.copy(
+                primary = MinimalAccent,
+                onPrimary = Color.White,
+                surface = MinimalCardColor,
+                onSurface = MinimalTextMain
+            )
+        ) {
+            DatePickerDialog(
+                onDismissRequest = { editShowDatePicker = false },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            editSelectedDateMillis =
+                                datePickerState.selectedDateMillis ?: System.currentTimeMillis()
+                            editShowDatePicker = false
+                        }
+                    ) {
+                        Text("확인", fontWeight = FontWeight.Bold, color = MinimalAccent)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { editShowDatePicker = false }) {
+                        Text("취소", color = MinimalTextSub)
+                    }
+                },
+                colors = DatePickerDefaults.colors(containerColor = MinimalCardColor)
+            ) {
+                DatePicker(
+                    state = datePickerState,
+                    colors = DatePickerDefaults.colors(
+                        containerColor = MinimalCardColor,
+                        titleContentColor = MinimalTextSub,
+                        headlineContentColor = MinimalTextMain,
+                        weekdayContentColor = MinimalTextSub,
+                        subheadContentColor = MinimalTextMain,
+                        navigationContentColor = MinimalTextMain,
+                        yearContentColor = MinimalTextMain,
+                        currentYearContentColor = MinimalAccent,
+                        selectedYearContentColor = Color.White,
+                        selectedYearContainerColor = MinimalAccent,
+                        dayContentColor = MinimalTextMain,
+                        selectedDayContentColor = Color.White,
+                        selectedDayContainerColor = MinimalAccent,
+                        todayContentColor = MinimalAccent,
+                        todayDateBorderColor = MinimalAccent
+                    )
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -512,7 +753,8 @@ fun RowScope.TabButton(text: String, isSelected: Boolean, onClick: () -> Unit) {
 
 @Composable
 fun AnniversaryItemCard(
-    item: AnniversaryItem
+    item: AnniversaryItem,
+    onEditClick: (AnniversaryItem) -> Unit = {}
 ) {
     val context = LocalContext.current
 
@@ -538,7 +780,9 @@ fun AnniversaryItemCard(
             modifier = Modifier.padding(20.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(modifier = Modifier.weight(1f)) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
                 Text(
                     text = item.title,
                     style = MaterialTheme.typography.bodyLarge,
@@ -560,12 +804,29 @@ fun AnniversaryItemCard(
                 else -> stringResource(R.string.d_day_d_plus_format, -dDay)
             }
 
-            Text(
-                text = dDayString,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = if (dDay <= 0) MinimalAccent else MinimalTextSub
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = dDayString,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = if (dDay <= 0) MinimalAccent else MinimalTextSub
+                )
+
+                IconButton(
+                    onClick = { onEditClick(item) },
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Edit,
+                        contentDescription = "수정",
+                        tint = MinimalTextSub.copy(alpha = 0.7f),
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            }
         }
     }
 }

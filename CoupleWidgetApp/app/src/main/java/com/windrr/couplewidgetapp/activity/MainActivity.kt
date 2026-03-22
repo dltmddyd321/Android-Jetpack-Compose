@@ -797,11 +797,9 @@ fun DDaySettingsScreen(
             confirmButton = {
                 Button(onClick = {
                     if (tempTitle.isNotBlank()) coroutineScope.launch {
-                        saveStartTitle(
-                            context,
-                            tempTitle
-                        )
-                    }; showTitleDialog = false
+                        saveStartTitle(context, tempTitle)
+                        showTitleDialog = false
+                    }
                 }, colors = ButtonDefaults.buttonColors(containerColor = MinimalAccent)) {
                     Text(
                         stringResource(R.string.change)

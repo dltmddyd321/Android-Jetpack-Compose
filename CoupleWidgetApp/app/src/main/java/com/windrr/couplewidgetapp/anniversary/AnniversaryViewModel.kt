@@ -28,6 +28,7 @@ class AnniversaryViewModel(
         when (intent) {
             is AnniversaryIntent.LoadAnniversaries -> loadAnniversaries()
             is AnniversaryIntent.AddAnniversary -> addAnniversary(intent)
+            is AnniversaryIntent.UpdateAnniversary -> updateAnniversary(intent)
             is AnniversaryIntent.DeleteAnniversary -> deleteAnniversary(intent.id)
         }
     }
@@ -56,6 +57,23 @@ class AnniversaryViewModel(
 
             loadAnniversaries()
             _effect.send(AnniversarySideEffect.ShowToast("기념일이 등록되었습니다!"))
+        }
+    }
+
+    private fun updateAnniversary(intent: AnniversaryIntent.UpdateAnniversary) {
+        viewModelScope.launch {
+            try {
+                dao.updateById(
+                    id = intent.id,
+                    title = intent.title,
+                    dateMillis = intent.dateMillis,
+                    dateCount = intent.dateCount
+                )
+                loadAnniversaries()
+                _effect.send(AnniversarySideEffect.ShowToast("기념일이 수정되었습니다!"))
+            } catch (e: Exception) {
+                _effect.send(AnniversarySideEffect.ShowToast("수정 실패: ${e.message}"))
+            }
         }
     }
 

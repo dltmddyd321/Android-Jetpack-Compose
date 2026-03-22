@@ -28,6 +28,9 @@ interface AnniversaryDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(item: AnniversaryItem)
 
+    @Query("UPDATE anniversary_items SET title = :title, dateMillis = :dateMillis, dateCount = :dateCount WHERE id = :id")
+    suspend fun updateById(id: Int, title: String, dateMillis: Long, dateCount: Int)
+
     @Query("DELETE FROM anniversary_items WHERE id = :id")
     suspend fun deleteById(id: Int)
 }
