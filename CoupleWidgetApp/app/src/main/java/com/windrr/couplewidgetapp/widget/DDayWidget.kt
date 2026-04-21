@@ -13,6 +13,8 @@ import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
+import androidx.glance.action.actionStartActivity
+import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.provideContent
@@ -30,6 +32,7 @@ import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.windrr.couplewidgetapp.R
+import com.windrr.couplewidgetapp.activity.MainActivity
 import com.windrr.couplewidgetapp.dday.dataStore
 import com.windrr.couplewidgetapp.dday.getStartDateFlow
 import kotlinx.coroutines.flow.first
@@ -75,6 +78,7 @@ class DDayGlanceWidget : GlanceAppWidget() {
         Column(
             modifier = GlanceModifier
                 .fillMaxSize()
+                .clickable(actionStartActivity<MainActivity>())
                 .background(Color.Transparent)
                 .padding(2.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
