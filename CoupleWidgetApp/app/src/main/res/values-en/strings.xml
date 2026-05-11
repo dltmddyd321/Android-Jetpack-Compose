@@ -74,7 +74,8 @@
     <!-- Permissions -->
     <string name="dialog_title_permission">Permission Required</string>
     <string name="dialog_desc_permission">To update the widget precisely at midnight, \'Alarms &amp; reminders\' and \'Notifications\' permissions are required.\n\nPlease allow all permissions in Settings.</string>
-    <string name="btn_allow_permission">Allow / Settings</string>
+    <string name="btn_allow_permission">Alarms &amp; Reminders Settings</string>
+    <string name="btn_allow_notification">Allow Notifications</string>
 
     <string name="permission_card_title_needed">Auto-update needs permission</string>
     <string name="permission_card_desc_needed">To update D-Day at midnight,\nplease allow \'Alarms &amp; reminders\'.</string>

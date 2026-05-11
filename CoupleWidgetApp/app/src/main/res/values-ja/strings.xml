@@ -76,7 +76,8 @@
     <!-- 権限関連 -->
     <string name="dialog_title_permission">必須権限のご案内</string>
     <string name="dialog_desc_permission">ウィジェットが毎日深夜0時に正確に更新されるには、「アラームとリマインダー」権限と「通知」権限が必要です。\n\n設定ですべての権限を許可してください。</string>
-    <string name="btn_allow_permission">権限許可 / 設定</string>
+    <string name="btn_allow_permission">アラームとリマインダーの設定</string>
+    <string name="btn_allow_notification">通知を許可する</string>
 
     <string name="permission_card_title_needed">自動更新のために必要です</string>
     <string name="permission_card_desc_needed">深夜0時にD-Dayを更新するには、\n「アラームとリマインダー」権限を許可してください。</string>

@@ -345,7 +345,9 @@ fun DDaySettingsScreen(
     val storedTitle by getStartTitle(context).collectAsState(initial = defaultTitle)
     var showTitleDialog by remember { mutableStateOf(false) }
     var showGuideDialog by remember { mutableStateOf(false) }
-    var showPermissionDialog by remember { mutableStateOf(false) }
+    var isNotificationGranted by remember { mutableStateOf(true) }
+    var isExactAlarmGranted by remember { mutableStateOf(true) }
+    val showPermissionDialog = !isNotificationGranted || !isExactAlarmGranted
     var isLoading by remember { mutableStateOf(false) }
 
     val datePickerState = rememberDatePickerState(
@@ -364,10 +366,16 @@ fun DDaySettingsScreen(
         }
     }
 
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        isNotificationGranted = isGranted
+    }
+
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                val isNotificationGranted =
+                isNotificationGranted =
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         ContextCompat.checkSelfPermission(
                             context,
@@ -376,18 +384,24 @@ fun DDaySettingsScreen(
                     } else {
                         true
                     }
-                val isExactAlarmGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                isExactAlarmGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     val alarmManager =
                         context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
                     alarmManager.canScheduleExactAlarms()
                 } else {
                     true
                 }
-                showPermissionDialog = !isNotificationGranted || !isExactAlarmGranted
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    // 알림 권한이 필요할 때 시스템 팝업 자동 요청
+    LaunchedEffect(showPermissionDialog) {
+        if (showPermissionDialog && !isNotificationGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
     }
 
     LaunchedEffect(savedDateMillis) {
@@ -592,7 +606,14 @@ fun DDaySettingsScreen(
             // 권한 체크 알림 (필요 시에만 표시)
             if (showPermissionDialog) {
                 ExactAlarmPermissionCheck(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    isNotificationGranted = isNotificationGranted,
+                    isExactAlarmGranted = isExactAlarmGranted,
+                    onRequestNotificationPermission = {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                        }
+                    }
                 )
             }
         }
@@ -956,7 +977,12 @@ fun GuidePageItem(step: Int, title: String, description: String, @DrawableRes im
 }
 
 @Composable
-fun ExactAlarmPermissionCheck(modifier: Modifier = Modifier) {
+fun ExactAlarmPermissionCheck(
+    modifier: Modifier = Modifier,
+    isNotificationGranted: Boolean = true,
+    isExactAlarmGranted: Boolean = true,
+    onRequestNotificationPermission: () -> Unit = {}
+) {
     val context = LocalContext.current
     Column(
         modifier = modifier
@@ -972,25 +998,39 @@ fun ExactAlarmPermissionCheck(modifier: Modifier = Modifier) {
             color = MinimalTextMain
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Button(
-            onClick = {
-                val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
-                        data = Uri.parse("package:${context.packageName}")
+        if (!isNotificationGranted) {
+            Button(
+                onClick = onRequestNotificationPermission,
+                colors = ButtonDefaults.buttonColors(containerColor = MinimalAccent),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
+                modifier = Modifier.height(36.dp),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(stringResource(R.string.btn_allow_notification), fontSize = 13.sp)
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+        }
+        if (!isExactAlarmGranted) {
+            Button(
+                onClick = {
+                    val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                        Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                            data = Uri.parse("package:${context.packageName}")
+                        }
+                    } else {
+                        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                            data = Uri.parse("package:${context.packageName}")
+                        }
                     }
-                } else {
-                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                        data = Uri.parse("package:${context.packageName}")
-                    }
-                }
-                context.startActivity(intent)
-            },
-            colors = ButtonDefaults.buttonColors(containerColor = MinimalAccent),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
-            modifier = Modifier.height(36.dp),
-            shape = RoundedCornerShape(8.dp)
-        ) {
-            Text(stringResource(R.string.btn_allow_permission), fontSize = 13.sp)
+                    context.startActivity(intent)
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = MinimalAccent),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
+                modifier = Modifier.height(36.dp),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(stringResource(R.string.btn_allow_permission), fontSize = 13.sp)
+            }
         }
     }
 }
