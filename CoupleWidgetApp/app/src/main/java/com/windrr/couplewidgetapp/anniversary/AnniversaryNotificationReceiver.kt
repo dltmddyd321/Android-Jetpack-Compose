@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.windrr.couplewidgetapp.R
@@ -14,6 +15,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.Calendar
+import java.util.Locale
 
 class AnniversaryNotificationReceiver : BroadcastReceiver() {
 
@@ -55,7 +57,19 @@ class AnniversaryNotificationReceiver : BroadcastReceiver() {
         }
     }
 
+    private fun getLocalizedContext(context: Context): Context {
+        val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+        val langCode = prefs.getString("language", Locale.getDefault().language)
+            ?: Locale.getDefault().language
+        val locale = Locale(langCode)
+        val config = Configuration(context.resources.configuration)
+        config.setLocale(locale)
+        return context.createConfigurationContext(config)
+    }
+
     private fun checkAndSendNotification(context: Context, item: AnniversaryItem) {
+        val localizedContext = getLocalizedContext(context)
+
         // 다음 기념일 날짜 계산 (반복 기념일 고려)
         val nextDateMillis = if (item.dateCount == 0) {
             calculateNextAnniversaryDate(item.dateMillis)
@@ -69,24 +83,24 @@ class AnniversaryNotificationReceiver : BroadcastReceiver() {
         // 조건 체크 (D-7, D-1, 당일)
         when (dDay) {
             7L -> sendNotification(
-                context,
+                localizedContext,
                 item.id,
-                context.getString(R.string.noti_title_d7), // "일주일 전! 🚨"
-                context.getString(R.string.noti_desc_d7, item.title) // "%s까지 일주일 남았어요..."
+                localizedContext.getString(R.string.noti_title_d7),
+                localizedContext.getString(R.string.noti_desc_d7, item.title)
             )
 
             1L -> sendNotification(
-                context,
+                localizedContext,
                 item.id,
-                context.getString(R.string.noti_title_d1), // "내일이에요! 💖"
-                context.getString(R.string.noti_desc_d1, item.title) // "%s가 바로 내일입니다..."
+                localizedContext.getString(R.string.noti_title_d1),
+                localizedContext.getString(R.string.noti_desc_d1, item.title)
             )
 
             0L -> sendNotification(
-                context,
+                localizedContext,
                 item.id,
-                context.getString(R.string.noti_title_d_day), // "축하합니다! 🎉"
-                context.getString(R.string.noti_desc_d_day, item.title) // "오늘은 %s입니다..."
+                localizedContext.getString(R.string.noti_title_d_day),
+                localizedContext.getString(R.string.noti_desc_d_day, item.title)
             )
         }
     }
